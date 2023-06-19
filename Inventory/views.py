@@ -1112,6 +1112,9 @@ def UpdateInventory():
                 
                 cur.execute(f"UPDATE inventory_report SET Inventory = {int(qty)}, Benchmark = {int(benchmark)} WHERE ProductID = '{product_id}' AND Platform = '{platform}'")
 
+        # Set the benchmark same for all platforms of the product_id
+        cur.execute(f"UPDATE inventory_report SET Benchmark = {int(benchmark)} WHERE ProductID = '{product_id}'")
+
         # Update the TInventory column based on the sum of inventory with respect to product id and distinct platform
         # Update the TInventory column
         cur.execute('''UPDATE inventory_report 
