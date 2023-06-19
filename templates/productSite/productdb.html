@@ -1,0 +1,635 @@
+{% extends "/productSite/productHome.html" %}
+{% block content %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js"
+  integrity="sha512-q583ppKrCRc7N5O0n2nzUiJ+suUv7Et1JGels4bXOaMFQcamPk9HjdUknZuuFjBNs7tsMuadge5k9RzdmO+1GQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Dashboard</h1>
+</div>
+
+<ul class="nav nav-tabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" data-bs-toggle="tab" href="#OrderReportTrend" aria-selected="true" role="tab">Order</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" data-bs-toggle="tab" href="#TrendReport" aria-selected="false" tabindex="-1"
+      role="tab">Return</a>
+  </li>
+</ul>
+<div id="myTabContent" class="tab-content">
+  <div class="tab-pane fade show active" id="OrderReportTrend" role="tabpanel">
+
+    <br>
+
+    <div class="chartCard">
+      <div class="chartBox" style="width: 1000px;">
+        <h4>Order and Return Trend</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <label for="platform-select-or-lg" class="form-label">Select a platform:</label>
+            <select id="platform-select-or-lg" class="form-select">
+              <option value="A">Amazon</option>
+              <option value="F">Flipkart</option>
+              <option value="M">Myntra</option>
+              <option value="AJ">Ajio</option>
+              <option value="SD">Snapdeal</option>
+              <option value="TQ">TataCliQ</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="time-select-or-lg" class="form-label">Select Interval:</label>
+            <select id="time-select-or-lg" onchange="filterChart_OR(this)" class="form-select">
+              <option value="">Please Select</option>
+              <option value="1">1 Month</option>
+              <option value="2">2 Months</option>
+              <option value="3">3 Months</option>
+              <option value="4">4 Months</option>
+            </select>
+          </div>
+        </div>
+        <canvas id="myChart_OR"></canvas>
+      </div>
+    </div>
+
+    <script>
+      // Define the chart data for each platform
+      var db_OR_LG_chartData = {{ chart_data_OR | safe }};
+
+      // Create the initial chart
+      var ctx = document.getElementById('myChart_OR').getContext('2d');
+      var myChart_OR = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: []
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'day'
+              },
+              min: '2023-01-01',
+              max: new Date()
+            },
+            y: {
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+
+      // Set initial chart data based on first platform
+
+      myChart_OR.options.scales.x.min = luxon.DateTime.now().plus({ months: -3 }).toISODate();
+
+      var initialPlatform = Object.keys(db_OR_LG_chartData)[0];
+      myChart_OR.data.labels = db_OR_LG_chartData[initialPlatform]['labels'];
+      myChart_OR.data.datasets = db_OR_LG_chartData[initialPlatform]['datasets'];
+
+
+      myChart_OR.update();
+
+      // Add event listener to platform selection dropdown
+      var platformSelect_or_lg = document.getElementById('platform-select-or-lg');
+      platformSelect_or_lg.addEventListener('change', function () {
+        var platformSelect_or_lg_v = platformSelect_or_lg.value;
+        myChart_OR.data.labels = db_OR_LG_chartData[platformSelect_or_lg_v]['labels'];
+        myChart_OR.data.datasets = db_OR_LG_chartData[platformSelect_or_lg_v]['datasets'];
+        myChart_OR.update();
+      });
+
+      function filterChart_OR(months) {
+        myChart_OR.options.scales.x.min = luxon.DateTime.now().plus({ months: -months.value }).toISODate();
+        myChart_OR.update();
+      }
+
+
+    </script>
+
+  </div>
+  <div class="tab-pane fade" id="TrendReport" role="tabpanel">
+
+    <br>
+
+    <div class="container">
+      <div class="row">
+
+        <div class="col-md-4">
+          <div class="chartCard">
+            <div class="chartBox">
+              <h4>Return by Platform</h4>
+              <div class="row">
+                <div class="col-md-12">
+                  <label for="platform-select-r-pa" class="form-label">Select a platform:</label>
+                  <select id="platform-select-r-pa" class="form-select">
+                    <option value="A">Amazon</option>
+                    <option value="F">Flipkart</option>
+                    <option value="M">Myntra</option>
+                    <option value="AJ">Ajio</option>
+                    <option value="SD">Snapdeal</option>
+                    <option value="TQ">TataCliQ</option>
+                  </select>
+                </div>
+              </div>
+              <canvas id="return_polar_area"></canvas>
+            </div>
+          </div>
+    
+          <script>
+            // Define the chart data for each platform
+            var chartData_r_pa = {{ chart_data_return_report_pa | tojson }};
+    
+            // Create the initial chart
+            var ctx = document.getElementById('return_polar_area').getContext('2d');
+            var myChart_r_pa = new Chart(ctx, {
+              type: 'polarArea',
+              data: chartData_r_pa.A,
+              options: {
+                scales: {
+                  y: {
+                    ticks: {
+                      precision: 0,
+                    },
+                  },
+                },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      // Custom tooltip function to display label, return category, and product info
+                      label: function (context) {
+                        var dataset = chartData_r_pa[platformSelect_r_pa.value].datasets[context.datasetIndex];
+                        var tooltipLabel = dataset.label + ': ' + context.formattedValue;
+    
+                        return tooltipLabel;
+                      },
+                      title: function (context) {
+                        var dataset = chartData_r_pa[platformSelect_r_pa.value].datasets[context[0].datasetIndex];
+                        var productInfo = dataset.productInfo[context[0].dataIndex];
+                        var returnCategory = chartData_r_pa[platformSelect_r_pa.value].labels[context[0].dataIndex];
+                        var tooltipTitle = 'Return Category: ' + returnCategory + '\n' + '\n';
+    
+                        // Build tooltip title with product info and subtitle
+                        for (var i = 0; i < productInfo.length; i++) {
+                          var productData = productInfo[i];
+                          var subtitle = productData[0];
+                          var count = productData[1];
+                          tooltipTitle += subtitle + ' - ' + count + '\n';
+                        }
+    
+                        return tooltipTitle;
+                      },
+                    },
+                  },
+                },
+              },
+            });
+    
+            // Add event listener to platform selection dropdown
+            var platformSelect_r_pa = document.getElementById('platform-select-r-pa');
+            platformSelect_r_pa.addEventListener('change', function () {
+              var platform_r_pa = platformSelect_r_pa.value;
+              myChart_r_pa.data = chartData_r_pa[platform_r_pa];
+              myChart_r_pa.update();
+            });
+          </script>
+    
+    
+    
+    
+        </div>
+
+        <div class="col-md-8">
+
+          <div class="chartCard">
+            <div class="chartBox" style="width: 1000px;">
+              <h4>Return Reason Trend</h4>
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="platform-select-rr-lg" class="form-label">Select a platform:</label>
+                  <select id="platform-select-rr-lg" class="form-select">
+                    <option value="A">Amazon</option>
+                    <option value="F">Flipkart</option>
+                    <option value="M">Myntra</option>
+                    <option value="AJ">Ajio</option>
+                    <option value="SD">Snapdeal</option>
+                    <option value="TQ">TataCliQ</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="time-select-rr-lg" class="form-label">Select Interval:</label>
+                  <select id="time-select-rr-lg" onchange="filterChart_RR(this)" class="form-select">
+                    <option value="">Please Select</option>
+                    <option value="1">1 Month</option>
+                    <option value="2">2 Months</option>
+                    <option value="3">3 Months</option>
+                    <option value="4">4 Months</option>
+                  </select>
+                </div>
+              </div>
+              <canvas id="myChart_RR"></canvas>
+            </div>
+          </div>
+        
+          <script>
+            // Define the chart data for each platform
+            var db_RR_LG_chartData = {{ chart_data_RR | safe }};
+        
+            // Create the initial chart
+            var ctx = document.getElementById('myChart_RR').getContext('2d');
+            var myChart_RR = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            },
+                            min: '2023-01-01',
+                            max: new Date()
+                        },
+                        y: {
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function (context) {
+                                    return 'Return Quantity: ' + context.raw;
+                                },
+                                afterLabel: function (context) {
+                                    return db_RR_LG_chartData[platformSelect_rr_lg.value]['tooltips'][context.dataIndex];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            myChart_RR.options.scales.x.min = luxon.DateTime.now().plus({ months: -3 }).toISODate();
+
+            // Set initial chart data based on first platform
+            var initialPlatform = Object.keys(db_RR_LG_chartData)[0];
+            myChart_RR.data.labels = db_RR_LG_chartData[initialPlatform]['labels'];
+            myChart_RR.data.datasets = db_RR_LG_chartData[initialPlatform]['datasets'];
+            myChart_RR.data.datasets[0].tooltip = db_RR_LG_chartData[initialPlatform]['tooltips']; // Set tooltip information
+            myChart_RR.update();
+        
+            // Add event listener to platform selection dropdown
+            var platformSelect_rr_lg = document.getElementById('platform-select-rr-lg');
+            platformSelect_rr_lg.addEventListener('change', function () {
+                var platformSelect_rr_lg_v = platformSelect_rr_lg.value;
+                myChart_RR.data.labels = db_RR_LG_chartData[platformSelect_rr_lg_v]['labels'];
+                myChart_RR.data.datasets = db_RR_LG_chartData[platformSelect_rr_lg_v]['datasets'];
+                myChart_RR.data.datasets[0].tooltip = db_RR_LG_chartData[platformSelect_rr_lg_v]['tooltips']; // Set tooltip information
+                myChart_RR.update();
+            });
+        
+            function filterChart_RR(months) {
+                var interval = parseInt(months.value);
+                var minDate = luxon.DateTime.now().minus({ months: interval }).toISODate();
+                myChart_RR.options.scales.x.min = minDate;
+                myChart_RR.update();
+            }
+        </script>
+
+          
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<br>
+
+<div class="container t-2">
+
+  <h4>Low/Medium/Top Selling Products</h4>
+
+  <br>
+
+  <div class="row">
+    <div class="col-4">
+      <label for="table-selector-trend-status">Select Trend Status:</label>
+      <select id="table-selector-trend-status" name="table-selector-trend-status" class="form-select col-4"
+        onchange="filterTable()">
+        <option value="low selling">Low Selling</option>
+        <option value="medium selling">Medium Selling</option>
+        <option value="top selling">Top Selling</option>
+      </select>
+
+    </div>
+    <div class="col-4">
+
+      <label for="table-selector-platform">Select Platform:</label>
+      <select name="table-selector-platform" id="table-selector-platform" class="form-select col-4"
+        onchange="filterTable()">
+        <option value="all">All</option>
+        <option value="A">Amazon</option>
+        <option value="F">Flipkart</option>
+        <option value="M">Myntra</option>
+        <option value="AJ">Ajio</option>
+        <option value="SD">Snapdeal</option>
+        <option value="TQ">TataCliQ</option>
+      </select>
+
+    </div>
+
+    <div class="col-4">
+
+      <label for="table-selector-category">Select category:</label>
+      <select name="table-selector-category" id="table-selector-category" class="form-select col-4"
+        onchange="filterTable()">
+        <option value="all">All</option>
+        {% for category in product_categories %}
+        <option value="{{ category }}">{{ category }}</option>
+        {% endfor %}
+      </select>
+
+    </div>
+
+
+
+  </div>
+
+  <br>
+  <div class="table-container">
+
+    <table class="table-responsive" id="TOPMEDLOW_table">
+      <thead class="sticky-header">
+        <tr>
+          <th>Image</th>
+          <th>Product ID</th>
+          <th>Subtitle</th>
+          <th>Orders (Per Month)</th>
+          <th>Inventory</th>
+          <th>Platform</th>
+          <th>Product Category</th>
+          <th>Trend Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in top_medium_low_data %}
+        <tr>
+          <td><img data-src="{{ row['ImgURL'] }}" alt="{{ row['SubTitle'] }}" class="lazyload"></td>
+          <td><a href="/product/{{ row.productid }}" target="_blank">{{ row.productid }}</a></td>
+          <td>{{ row.SubTitle }}</td>
+          <td>{{ row.SumOfQuantity }}</td>
+          <td>{{ row.TInventory}}</td>
+          <td>{{ row.platform }}</td>
+          <td>{{ row.ProductCategory}}</td>
+          <td>{{ row.trend_status }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+  <script>
+    function filterTable() {
+      var status = document.getElementById("table-selector-trend-status").value;
+      var platform = document.getElementById("table-selector-platform").value;
+      var category = document.getElementById("table-selector-category").value;
+      var table = document.getElementById("TOPMEDLOW_table");
+      var rows = table.getElementsByTagName("tr");
+
+      for (var i = 0; i < rows.length; i++) {
+
+        if (i == 0) { // Skip the first row (header row)
+          continue;
+        }
+
+        var row = rows[i];
+        var trendStatus = row.cells[7].innerText;
+        var categoryValue = row.cells[6].innerText;
+        var platformValue = row.cells[5].innerText;
+
+        if ((status === "all" || trendStatus === status) &&
+          (platform === "all" || platformValue === platform) &&
+          (category === "all" || categoryValue === category)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      }
+    }
+
+    // Set the initial selection to "Low Selling"
+    window.onload = function () {
+      document.getElementById("table-selector-trend-status").value = "low selling";
+      document.getElementById("table-selector-platform").value = "all";
+      document.getElementById("table-selector-category").value = "all";
+      filterTable();
+    };
+
+  </script>
+
+
+</div>
+
+<hr>
+
+
+<div class="container pt-4 chart-container2">
+
+  <h4>Comparison of ProductID based on 15 days interval</h4>
+
+  <br>
+
+  <div class="col-md-4 offset-md-4">
+
+    <label for="platform-select-15" class="form-label">Select a platform:</label>
+    <select id="platform-select-15" class="form-select" onchange="updateChart()">
+      <option value="">Please Select</option>
+      {% for platform in platforms %}
+      <option value="{{ platform }}">{{ platform }}</option>
+      {% endfor %}
+
+    </select>
+
+  </div>
+
+  <br>
+
+
+  <canvas id="chartCanvas"></canvas>
+
+  <script>
+    // Get the data from Flask
+    var labels = {{ labels| tojson }};
+    var first15DaysQuantities = {{ first_15_days_quantities| tojson }};
+    var second15DaysQuantities = {{ second_15_days_quantities| tojson }};
+    var platforms = {{ platforms| tojson }};
+
+    var chart; // Variable to store the chart instance
+
+    // Function to update the chart based on the selected platform
+    function updateChart() {
+      var platformSelect = document.getElementById("platform-select-15");
+      var selectedPlatform = platformSelect.value;
+
+      var filteredLabels = [];
+      var filteredFirst15DaysQuantities = [];
+      var filteredSecond15DaysQuantities = [];
+
+      // Filter data based on the selected platform
+      for (var i = 0; i < labels.length; i++) {
+        var productID = labels[i];
+        var platformQuantities1 = first15DaysQuantities[productID][selectedPlatform];
+        var platformQuantities2 = second15DaysQuantities[productID][selectedPlatform];
+
+        if (platformQuantities1 !== undefined && platformQuantities2 !== undefined) {
+          filteredLabels.push(productID);
+          filteredFirst15DaysQuantities.push(platformQuantities1);
+          filteredSecond15DaysQuantities.push(platformQuantities2);
+        }
+      }
+
+
+      // Destroy the existing chart if it exists
+      if (chart) {
+        chart.destroy();
+      }
+
+      // Create the chart
+      var ctx = document.getElementById('chartCanvas').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: filteredLabels,
+          datasets: [
+            {
+              label: 'First 15 Days',
+              data: filteredFirst15DaysQuantities,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            },
+            {
+              label: 'Second 15 Days',
+              data: filteredSecond15DaysQuantities,
+              backgroundColor: 'rgba(192, 75, 75, 0.2)',
+              borderColor: 'rgba(192, 75, 75, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          indexAxis: 'y',
+          plugins: {
+            legend: {
+              position: 'top'
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: true
+            }
+          },
+          scales: {
+            x: {
+              position: "top",
+              beginAtZero: true,
+              minBarLength: 1,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+</div>
+
+
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+  }
+
+  .chartMenu p {
+    padding: 10px;
+    font-size: 20px;
+  }
+
+  .chartCard {
+    /* width: 80vw;
+      height: calc(80vh - 40px); */
+    background: rgba(252, 252, 252, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* padding-left: 140px; */
+  }
+
+  .chartBox {
+    width: 600px;
+    padding: 20px;
+    border-radius: 20px;
+    border: solid 3px rgba(54, 162, 235, 1);
+    background: white;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  img {
+    max-width: 70px;
+    height: auto;
+  }
+
+  .table-container {
+    max-height: 400px;
+    /* Adjust the height as needed */
+    overflow: auto;
+  }
+
+  #TOPMEDLOW_table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2;
+  }
+
+  .sticky-header {
+    position: sticky;
+    top: 0;
+  }
+</style>
+
+
+{% endblock %}

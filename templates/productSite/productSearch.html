@@ -1,0 +1,128 @@
+{% extends "/productSite/productHome.html" %}
+
+
+{% block content %}
+
+<style>
+    th {
+        background-color: #f2f2f2;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    th,
+    td {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    img {
+        max-width: 70px;
+        height: auto;
+    }
+
+    .sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    
+    .table-container {
+        overflow-y: auto;
+        max-height: 600px; /* Adjust the max-height value as needed */
+    }
+</style>
+
+<div class="container pt-5">
+    <div class="row">
+        <div class="col-4">
+            <h2>Search Product</h2>
+        </div>
+        <div class="col-4 offset-4">
+            <input type="text" id="myInput" class="form-control" onkeyup="filterTable()" placeholder="Search...">
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row table-container">
+        <table id="Products">
+            <thead class="sticky-header">
+                <tr>
+                    <th>ProductID</th>
+                    <th>Image</th>
+                    <th>SubTitle</th>
+                    <th>A</th>
+                    <th>F</th>
+                    <th>M</th>
+                    <th>SD</th>
+                    <th>AJ</th>
+                    <th>JM</th>
+                    <th>NK</th>
+                    <th>TQ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
+                    <td><img src="{{ row['ImgURL'] }}" alt="{{ row['SubTitle'] }}"></td>
+                    <td>{{ row['SubTitle'] }}</td>
+                    <td>{{ row['A'] }}</td>
+                    <td>{{ row['F'] }}</td>
+                    <td>{{ row['M'] }}</td>
+                    <td>{{ row['SD'] }}</td>
+                    <td>{{ row['AJ'] }}</td>
+                    <td>{{ row['JM'] }}</td>
+                    <td>{{ row['NK'] }}</td>
+                    <td>{{ row['TQ'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    function filterTable() {
+        // Declare variables
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("Products");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those that don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            if (i == 0) { // Skip the first row (header row)
+                continue;
+            }
+            // Loop through all table columns in the current row
+            for (j = 0; j < tr[i].cells.length; j++) {
+
+                td = tr[i].cells[j];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break; // Break the column loop and move on to the next row
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    }
+
+    document.getElementById("myInput").addEventListener("keyup", function () {
+        filterTable();
+    });
+
+</script>
+
+
+
+{% endblock %}

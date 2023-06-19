@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">    
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+
+    <title>Leather World </title>
+  </head>
+  <body>
+    
+
+    <div class="container pt-5">
+      <h1>{{ product.Title }}</h1>
+      <p>{{ product.SubTitle }}</p>
+      <hr>
+      <div class="row">
+        <div class="col-md-6">
+          <img src="{{ product.image_url }}" alt="{{ product.Title }}" class="img-fluid mb-3">
+        </div>
+        <div class="col-md-6">
+          <p><strong>Dimensions(L X W X H): </strong>{{ product.dimensions }} cm </p>
+          <hr>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>SKU</th>
+                <th>PlatformID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- {% for platform, sku in product.skus.items() %}
+                <tr>
+                  <td>{{ platform }}</td>
+                  <td>{{ sku }}</td>
+                </tr>
+              {% endfor %} -->
+
+              {% for platform, sku_data in product.skus.items() %}
+            <tr>
+              <td>{{ platform }}</td>
+              <td>{{ sku_data['skus']|join(', ') }}</td>
+              <td>{{ sku_data['platform_ids']|join(', ') }}</td>
+            </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
+
+
+          <hr>
+          <div class="accordion" id="description-accordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="description-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="false" aria-controls="description-collapse">
+                  Description
+                </button>
+              </h2>
+              <div id="description-collapse" class="accordion-collapse collapse" aria-labelledby="description-header" data-bs-parent="#description-accordion">
+                <div class="accordion-body">
+                  {{ product.description }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion pt-2" id="features-accordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="features-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#features-collapse" aria-expanded="false" aria-controls="features-collapse">
+                    Features
+                  </button>
+                </h2>
+                <div id="features-collapse" class="accordion-collapse collapse" aria-labelledby="features-header" data-bs-parent="#features-accordion">
+                  <div class="accordion-body">
+                    {{ product.features }}
+                  </div>
+                </div>
+              </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="container">
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <a class="nav-link active" data-bs-toggle="tab" href="#home" aria-selected="true" role="tab">Order</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" data-bs-toggle="tab" href="#profile" aria-selected="false" tabindex="-1" role="tab">Returns</a>
+        </li>
+      
+      </ul>
+      <div id="myTabContent" class="tab-content" style="padding: 20px;">
+        <div class="tab-pane fade show active" id="home" role="tabpanel">
+
+          <div class="chartCard">
+            <div class="chartBox" style="width: 800px;">
+                <h1>Date vs Quantity</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                      <label for="platform-select" class="form-label">Select a platform:</label>
+                        <select id="platform-select" class="form-select">
+                            <option value="A">Amazon</option>
+                            <option value="F">Flipkart</option>
+                            <option value="M">Myntra</option>
+                            <option value="AJ">Ajio</option>
+                            <option value="SD">Snapdeal</option>
+                            <option value="TQ">TataCliQ</option>
+
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="time-select" class="form-label">Select Interval:</label>
+                        <select id="time-select" onchange="filterChart(this)" class="form-select">
+                            <option value="">Please Select</option>
+                            <option value="1">1 Month</option>
+                            <option value="2">2 Month</option>
+                            <option value="3">3 Month</option>
+                            <option value="4">4 Month</option>
+                        </select>
+                    </div>
+                </div>
+                <canvas id="myChart"></canvas>
+            </div>
+          </div>
+
+          <script>
+            // Define the chart data for each platform
+            var chartData = {{ chart_data[0] | tojson }};
+
+            // Create the initial chart
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData.A,
+                options: {
+                    scales: {
+                        x:{
+                        type: 'time',
+                        time: {
+                            unit : 'day'
+                        },
+                        min : '2023-01-01',
+                        max: new Date()
+                    }, 
+                        
+                      y: {
+                          ticks: {
+                              precision: 0,
+                              
+                          }
+                          
+                      }
+                    }
+                }
+            });
+
+            // Add event listener to platform selection dropdown
+            var platformSelect = document.getElementById('platform-select');
+            platformSelect.addEventListener('change', function() {
+                var platform = platformSelect.value;
+                myChart.data = chartData[platform];
+                myChart.update();
+            });
+
+            function filterChart(months) {
+                console.log(months.value - 1)
+                myChart.options.scales.x.min = luxon.DateTime.now().plus({months: -months.value}).toISODate();
+                myChart.update();
+
+            }
+
+          </script>
+
+
+        </div>
+        <div class="tab-pane fade" id="profile" role="tabpanel">
+
+          <div class="container pt-4">
+            <div class="row justify-content-end">
+
+                <div class="col-md-6">
+
+                  <div class="chartCard">
+                    <div class="chartBox">
+                        <h1>Date vs Return</h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                              <label for="platform-select-r-l" class="form-label">Select a platform:</label>
+                                <select id="platform-select-r-l" class="form-select">
+                                    <option value="A">Amazon</option>
+                                    <option value="F">Flipkart</option>
+                                    <option value="M">Myntra</option>
+                                    <option value="AJ">Ajio</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-5">
+                              <label for="time-select-r-l" class="form-label">Select Interval:</label>
+                                <select id="time-select-r-l" onchange="filterChart_r_l(this)" class="form-select">
+                                    <option value="">Please Select</option>
+                                    <option value="1">1 Month</option>
+                                    <option value="2">2 Month</option>
+                                    <option value="3">3 Month</option>
+                                    <option value="4">4 Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <canvas id="return_line_chart"></canvas>
+                    </div>
+                  </div>
+        
+                  <script>
+                    // Define the chart data for each platform
+                    var return_line_chart_data = {{ chart_data[2] | tojson }};
+        
+                    // Create the initial chart
+                    var ctx = document.getElementById('return_line_chart').getContext('2d');
+                    var return_line_chart = new Chart(ctx, {
+                        type: 'line',
+                        data: return_line_chart_data.A,
+                        options: {
+                            scales: {
+                                x:{
+                                type: 'time',
+                                time: {
+                                    unit : 'day'
+                                },
+                                min : '2023-01-01',
+                                max: new Date()
+                            }, 
+                                
+                              y: {
+                                  ticks: {
+                                      precision: 0,
+                                      
+                                  }
+                                  
+                              }
+                            }
+                        }
+                    });
+        
+                    // Add event listener to platform selection dropdown
+                    var platformSelect_r_l = document.getElementById('platform-select-r-l');
+                    platformSelect_r_l.addEventListener('change', function() {
+                        var platform_r_l = platformSelect_r_l.value;
+                        return_line_chart.data = return_line_chart_data[platform_r_l];
+                        return_line_chart.update();
+                    });
+        
+                    function filterChart_r_l(months) {
+                        console.log(months.value - 1)
+                        return_line_chart.options.scales.x.min = luxon.DateTime.now().plus({months: -months.value}).toISODate();
+                        return_line_chart.update();
+        
+                    }
+        
+                  </script>
+                    
+                  
+
+
+
+                </div>
+
+                <div class="col-md-6">
+
+                  <div class="chartCard">
+                    <div class="chartBox">
+                        <h1>Track Return</h1>
+                        <div class="row">
+                            <div class="col-md-6">
+                              <label for="platform-select-r-pa" class="form-label">Select a platform:</label>
+                                <select id="platform-select-r-pa" class="form-select">
+                                    <option value="A">Amazon</option>
+                                    <option value="F">Flipkart</option>
+                                    <option value="M">Myntra</option>
+                                    <option value="AJ">Ajio</option>          
+        
+                                </select>
+                            </div>
+                        </div>
+                        <canvas id="return_polar_area"></canvas>
+                    </div>
+                  </div>
+        
+                  <script>
+                    // Define the chart data for each platform
+                    var chartData_r_pa = {{ chart_data[1] | tojson }};
+        
+                    // Create the initial chart
+                    var ctx = document.getElementById('return_polar_area').getContext('2d');
+                    var myChart_r_pa = new Chart(ctx, {
+                        type: 'polarArea',
+                        data: chartData_r_pa.A,
+                        options: {
+                            scales: {
+                              y: {
+                                  ticks: {
+                                      precision: 0,
+                                      
+                                  }
+                                  
+                              }
+                            }
+                        }
+                    });
+        
+                    // Add event listener to platform selection dropdown
+                    var platformSelect_r_pa = document.getElementById('platform-select-r-pa');
+                    platformSelect_r_pa.addEventListener('change', function() {
+                        var platform_r_pa = platformSelect_r_pa.value;
+                        myChart_r_pa.data = chartData_r_pa[platform_r_pa];
+                        myChart_r_pa.update();
+                    });
+        
+                  </script>
+
+                </div>
+            </div>
+          </div>
+          
+          
+
+        </div>
+      </div>
+
+    </div>
+
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+      .chartMenu p {
+        padding: 10px;
+        font-size: 20px;
+      }
+      .chartCard {
+        /* width: 80vw;
+        height: calc(80vh - 40px); */
+        background: rgba(252, 252, 252, 0.2);
+        display: flex;
+        align-items: center;
+        /* justify-content: center; */
+        /* padding-left: 140px; */
+      }
+      .chartBox {
+        width: 600px;
+        padding: 20px;
+        border-radius: 20px;
+        border: solid 3px rgba(54, 162, 235, 1);
+        background: white;
+      }
+    </style>    
+
+
+  </body>
+  </html>

@@ -1,0 +1,1319 @@
+{% extends "/inventorySite/inventoryB.html" %}
+{% block content %}
+
+
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/inventory">Inventory Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav ms-auto" style="padding-right: 50px;">
+                    <li class="nav-item">
+                        <a href="/">
+                            <button type="button" class="btn btn-primary">Home</button>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+
+<div class="container p-3">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item active" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" href="#DOR" aria-selected="false" tabindex="-1" role="tab">Daily
+                Order Report</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" href="#ShowUpdateInventory" aria-selected="true"
+            role="tab">Inventory</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" href="#NewUpdates" aria-selected="false" tabindex="-1"
+                role="tab">Updates</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" href="#AddInventory" aria-selected="false" tabindex="-1"
+                role="tab">Add Inventory</a>
+        </li>
+
+    </ul>
+
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade show active" id="DOR" role="tabpanel">
+
+            <form role="form" id="dor_form" method="post">
+                <fieldset>
+                    <br>
+                    <legend>Upload Order Reports</legend>
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">Amazon</span>
+                                    <input type="text" class="form-control" name="amazon_dor" id="amazon_dor">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">Flipkart</span>
+                                    <input type="text" class="form-control" name="flipkart_dor" id="flipkart_dor">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">Myntra</span>
+                                    <input type="text" class="form-control" name="myntra_dor" id="myntra_dor">
+                                </div>
+                            </div>
+
+                            <br>
+
+                            <br>
+
+
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">Snapdeal</span>
+                                    <input type="text" class="form-control" name="snapdeal_dor" id="snapdeal_dor">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">Ajio</span>
+                                    <input type="text" class="form-control" name="ajio_dor" id="ajio_dor">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">TataQlick</span>
+                                    <input type="text" class="form-control" name="tatq_dor" id="tataq_dor">
+                                </div>
+                            </div>
+
+                             <br>
+
+                            <br>
+
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">Nykaa/NykaaFSN</span>
+                                    <input type="text" class="form-control" name="NK_NKFSN_dor" id="NK_NKFSN_dor">
+                                </div>
+                            </div>
+                        </div>
+
+            
+                            
+
+
+
+                    </div>
+
+                    <br>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                </fieldset>
+            </form>
+
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+            <script type="text/javascript">
+                $(document).on('submit', '#dor_form', function (e) {
+                    console.log('hello');
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: '/inventory/DailyOrderReport',
+                        data: {
+                            amazon_dor: $("#amazon_dor").val(),
+                            flipkart_dor: $("#flipkart_dor").val(),
+                            myntra_dor: $("#myntra_dor").val(),
+                            snapdeal_dor: $("#snapdeal_dor").val(),
+                            ajio_dor: $("#ajio_dor").val(),
+                            tataq_dor: $("#tataq_dor").val(),
+                            NK_NKFSN_dor: $("#NK_NKFSN_dor").val()
+                        },
+
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                alert('Success: ' + response.message);
+                                $('#dor_form')[0].reset();
+                            } else {
+                                alert('Error: ' + response.message);
+                                $('#dor_form')[0].reset();
+
+
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            alert('Error: ' + error);
+                        }
+                    })
+                });
+            </script>
+
+    <hr>
+    
+
+    <!-- <div class="row">
+
+        {% for order_date, values in one_week_order_summary_dict.items() %}
+
+        <div class="col-3">
+
+        <h4>{{ order_date }}</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Platform</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-primary">
+                    <th>Total Quantity:</th>
+                    <td>{{ values['sum'] }}</td>
+                </tr>
+                {% for platform, quantity in values.items() if platform != 'sum' %}
+                    <tr>
+                        <td>{{ platform }}</td>
+                        <td>{{ quantity }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <hr>
+        </div>
+        {% endfor %}
+
+    </div> -->
+
+    <div class="row">
+        {% for order_date, values in one_week_order_summary_dict.items() %}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{ order_date }}</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-primary">
+                                <td>Total Quantity:</td>
+                                <td>{{ values['sum'] }}</td>
+                            </tr>
+                            {% for platform, data in values.items() if platform != 'sum' %}
+                            <tr>
+                                <td>{{ platform }}</td>
+                                <td>
+                                    <span class="quantity-tooltip" data-bs-toggle="tooltip" data-bs-placement="top">
+                                        {{ data.get('sum', 0) }}
+                                        <div class="tooltip-table d-none">
+                                            <div style="max-height: 100%; overflow-y: auto;">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Subtitle</th>
+                                                            <th>Quantity</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for subtitle, quantity in data.items() if subtitle != 'sum' %}
+                                                        <tr>
+                                                            <td>{{ subtitle }}</td>
+                                                            <td>{{ quantity }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <style>
+        .quantity-tooltip {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .tooltip-table {
+            max-width: 300px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .tooltip-table td {
+            padding: 0.25rem 0.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+        }
+    </style>
+
+<!-- Include Bootstrap JS and jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('.quantity-tooltip'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            var tooltip = new bootstrap.Tooltip(tooltipTriggerEl, {
+                trigger: 'manual'
+            });
+            tooltipTriggerEl.addEventListener('click', function () {
+                if (!tooltip._active) {
+                    tooltip.show();
+                    var tooltipTable = tooltipTriggerEl.querySelector('.tooltip-table');
+                    tooltipTable.classList.remove('d-none');
+                } else {
+                    tooltip.hide();
+                    var tooltipTable = tooltipTriggerEl.querySelector('.tooltip-table');
+                    tooltipTable.classList.add('d-none');
+                }
+            });
+
+            document.addEventListener('click', function (event) {
+                var isClickInside = tooltipTriggerEl.contains(event.target);
+                if (!isClickInside) {
+                    tooltip.hide();
+                    var tooltipTable = tooltipTriggerEl.querySelector('.tooltip-table');
+                    tooltipTable.classList.add('d-none');
+                }
+            });
+
+            return tooltip;
+        });
+    });
+</script>
+
+    <style>
+
+thead {
+        background-color: #1D1D1D;
+        color: white;
+    }
+    </style>
+
+
+
+            
+
+
+
+
+        </div>
+        <div class="tab-pane fade" id="ShowUpdateInventory" role="tabpanel">
+
+            <div class="container pt-2">
+                <div class="row justify-content-end">
+                    <div class="col-auto">
+                        <button class="btn btn-primary" id="read_latest_invt_btn">Read Latest Inventory</button>
+                    </div>
+                    <!-- <div class="col-auto">
+                        <button class="btn btn-dark">Read Latest Inventory</button>
+                    </div> -->
+                </div>
+            </div>
+
+            <div class="container pt-2">
+                <h1>Inventory Report</h1>
+
+                <div class="row justify-content-end">
+
+                    <div class="col-4">
+
+                        <select id="table-selector" class="form-select col-2">
+                            <option value="values-all">Table 1: All</option>
+                            <option value="values-below">Table 2: Below Benchmark</option>
+                            <option value="values-around">Table 3: Around Benchmark</option>
+                            <option value="values-above">Table 4: Above Benchmark</option>
+                        </select>
+
+                    </div>
+
+                    <div class="col-4">
+                        <input type="text" id="myInput" class="form-control" onkeyup="filterTable()"
+                            placeholder="Search...">
+                    </div>
+
+                    <div class="col-4">
+                        <button class="btn btn-primary" onclick="toggleEditMode()">Edit Inventory</button>
+                    </div>
+
+
+                </div>
+
+                <br>
+                
+
+                <table id="table1" class="Inventory-table values-all" pt-2>
+                    <thead class="sticky-header">
+                        <tr>
+                            <th>ProductID</th>
+                            <th>SubTitle</th>
+                            <th>A</th>
+                            <th>F</th>
+                            <th>M</th>
+                            <th>SD</th>
+                            <th>AJ</th>
+                            <th>TQ</th>
+                            <th>JM</th>
+                            <th>NK</th>
+                            <th>Total Inventory</th>
+                            <th>Benchmark</th>
+                            <th>Avg Qty Daily</th>
+                            <th>Days Left</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for row in rows %}
+                        <tr id="row-{{ row.ProductID }}">
+                            <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
+                            <td>{{ row.SubTitle }}</td>
+                            <td>{{ row.A }}</td>
+                            <td>{{ row.F }}</td>
+                            <td>{{ row.M }}</td>
+                            <td>{{ row.SD }}</td>
+                            <td>{{ row.AJ }}</td>
+                            <td>{{ row.TQ }}</td>
+                            <td>{{ row.JM }}</td>
+                            <td>{{ row.NK }}</td>
+                            <td>{{ row.TInventory }}</td>
+                            <td>{{ row.Benchmark }}</td>
+                            <td>{{ row.Avg_Qty_Per_Day }}</td>
+                            <td>{{ row.days_until_empty}}</td>
+                            
+                            <td><button onclick="update_inventory('{{ row.ProductID }}')">Edit</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <script>
+
+function sortTableTotalInventory() {
+  var table = document.getElementById("table1");
+  var tbody = table.getElementsByTagName("tbody")[0];
+  var rows = tbody.getElementsByTagName("tr");
+  var sortedRows = Array.from(rows);
+
+  sortedRows.sort(function (a, b) {
+    var aValue = parseInt(a.cells[10].textContent);
+    var bValue = parseInt(b.cells[10].textContent);
+    return aValue - bValue;
+  });
+
+  for (var i = 0; i < sortedRows.length; i++) {
+    tbody.appendChild(sortedRows[i]);
+  }
+}
+
+                </script>
+
+
+
+                <!-- Table 1: Rows with values below benchmark -->
+                <table id="table2" class="Inventory-table values-below" style="display:none;" pt-2>
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Subtitle</th>
+                            <th>A</th>
+                            <th>F</th>
+                            <th>M</th>
+                            <th>SD</th>
+                            <th>AJ</th>
+                            <th>TQ</th>
+                            <th>JM</th>
+                            <th>NK</th>
+                            <th>Total Inventory</th>
+                            <th>Benchmark</th>
+                            <th>Avg Qty Daily</th>
+                            <th>Days Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        {% if row['Total'] < row.Benchmark %} <tr>
+                            <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
+                            <td>{{ row.SubTitle }}</td>
+                            <td>{{ row.A }}</td>
+                            <td>{{ row.F }}</td>
+                            <td>{{ row.M }}</td>
+                            <td>{{ row.SD }}</td>
+                            <td>{{ row.AJ }}</td>
+                            <td>{{ row.TQ }}</td>
+                            <td>{{ row.JM }}</td>
+                            <td>{{ row.NK }}</td>
+                            <td>{{ row.TInventory }}</td>
+                            <td>{{ row.Benchmark }}</td>
+                            <td>{{ row.Avg_Qty_Per_Day }}</td>
+                            <td>{{ row.days_until_empty}}</td>
+                            <!-- <td><button onclick="update_inventory('{{ row.ProductID }}')">Edit</button></td> -->
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                    </tbody>
+                </table>
+
+
+                <!-- Table 2: Rows with values around benchmark -->
+                <table id="table3" class="Inventory-table values-around" style="display:none;" pt-2>
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Subtitle</th>
+                            <th>A</th>
+                            <th>F</th>
+                            <th>M</th>
+                            <th>SD</th>
+                            <th>AJ</th>
+                            <th>TQ</th>
+                            <th>JM</th>
+                            <th>NK</th>
+                            <th>Total Inventory</th>
+                            <th>Benchmark</th>
+                            <th>Avg Qty Daily</th>
+                            <th>Days Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        {% if row['Total'] >= row.Benchmark -20 and row['Total'] <= row.Benchmark + 20 %} <tr>
+                            <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
+                            <td>{{ row.SubTitle }}</td>
+                            <td>{{ row.A }}</td>
+                            <td>{{ row.F }}</td>
+                            <td>{{ row.M }}</td>
+                            <td>{{ row.SD }}</td>
+                            <td>{{ row.AJ }}</td>
+                            <td>{{ row.TQ }}</td>
+                            <td>{{ row.JM }}</td>
+                            <td>{{ row.NK }}</td>
+                            <td>{{ row.TInventory }}</td>
+                            <td>{{ row.Benchmark }}</td>
+                            <td>{{ row.Avg_Qty_Per_Day }}</td>
+                            <td>{{ row.days_until_empty}}</td>
+                            <!-- <td><button onclick="update_inventory('{{ row.ProductID }}')">Edit</button></td> -->
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                    </tbody>
+                </table>
+
+
+                <!-- Table 3: Rows with values above benchmark -->
+                <table id="table4" class="Inventory-table values-above" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Subtitle</th>
+                            <th>A</th>
+                            <th>F</th>
+                            <th>M</th>
+                            <th>SD</th>
+                            <th>AJ</th>
+                            <th>TQ</th>
+                            <th>JM</th>
+                            <th>NK</th>
+                            <th>Total Inventory</th>
+                            <th>Benchmark</th>
+                            <th>Avg Qty Daily</th>
+                            <th>Days Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        {% if row['Total'] > row.Benchmark %}
+                        <tr>
+                            <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
+                            <td>{{ row.SubTitle }}</td>
+                            <td>{{ row.A }}</td>
+                            <td>{{ row.F }}</td>
+                            <td>{{ row.M }}</td>
+                            <td>{{ row.SD }}</td>
+                            <td>{{ row.AJ }}</td>
+                            <td>{{ row.TQ }}</td>
+                            <td>{{ row.JM }}</td>
+                            <td>{{ row.NK }}</td>
+                            <td>{{ row.TInventory }}</td>
+                            <td>{{ row.Benchmark }}</td>
+                            <td>{{ row.Avg_Qty_Per_Day }}</td>
+                            <td>{{ row.days_until_empty}}</td>
+                            <!-- <td><button onclick="update_inventory('{{ row.ProductID }}')">Edit</button></td> -->
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+
+
+                <script>
+
+                    $(document).ready(function () {
+                        // Get the value of the selected option and show the corresponding table
+                        $('#table-selector').on('change', function () {
+                            var selectedTable = $(this).val();
+                            $('.Inventory-table').hide();
+                            $('.' + selectedTable).show();
+                        });
+                    });
+
+                    function toggleEditMode() {
+                        var table = document.getElementById('table1');
+                        table.classList.toggle("edit-mode");
+                        var buttons = table.getElementsByTagName("button");
+                        for (var i = 0; i < buttons.length; i++) {
+                            buttons[i].style.display = table.classList.contains("edit-mode") ? "inline" : "none";
+                        }
+                    }
+
+
+                    function update_inventory(product_id) {
+
+                        // get the table row element
+                        var row = document.getElementById("row-" + product_id);
+
+                        // get the table cells
+                        var cells = row.getElementsByTagName("td");
+
+                        // loop through the cells and replace the text with an input field
+                        for (var i = 2; i <= 11; i++) { // only loop through the A, F, M columns
+                            var cell = cells[i];
+                            var value = cell.innerText;
+                            cell.innerHTML = "<input type='number' value='" + value + "' style='width: 50px;' />";
+                        }
+
+                        // change the button text to "Save"
+                        var button = row.getElementsByTagName("button")[0];
+                        button.innerText = "Save";
+                        button.setAttribute("onclick", "save_inventory('" + product_id + "')");
+                    }
+
+                    function save_inventory(product_id) {
+                        // get the table row element
+                        var row = document.getElementById("row-" + product_id);
+
+                        // get the table cells
+                        var cells = row.getElementsByTagName("td");
+
+                        // get the new values from the input fields
+                        var a = cells[2].getElementsByTagName("input")[0].value;
+                        var f = cells[3].getElementsByTagName("input")[0].value;
+                        var m = cells[4].getElementsByTagName("input")[0].value;
+                        var sd = cells[5].getElementsByTagName("input")[0].value;
+                        var aj = cells[6].getElementsByTagName("input")[0].value;
+                        var tq = cells[7].getElementsByTagName("input")[0].value;
+                        var jm = cells[8].getElementsByTagName("input")[0].value;
+                        var nk = cells[9].getElementsByTagName("input")[0].value;
+                        var inventory = cells[10].getElementsByTagName("input")[0].value;
+                        var benchmark = cells[11].getElementsByTagName("input")[0].value; // added this line
+
+                        var updated_data = {
+                            ProductId: product_id,
+                            A: a,
+                            F: f,
+                            M: m,
+                            SD: sd,
+                            AJ: aj,
+                            TQ: tq,
+                            JM: jm,
+                            NK: nk,
+                            Inventory: inventory,
+                            Benchmark: benchmark // added this line
+                        }
+                        // send an AJAX request to update the inventory
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', '/inventory/UpdateInventory', true);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+                                var response = JSON.parse(xhr.responseText);
+                                if (response.status === "success") {
+                                    // alert(response.message);
+                                    // refresh the page after receiving success message
+                                    location.reload(true);
+                                } else {
+                                    alert(response.message);
+                                }
+                            }
+                        };
+                        xhr.send(JSON.stringify(updated_data));
+                    }
+
+                </script>
+
+                <script>
+
+                    // function filterTable() {
+                    // // Declare variables
+                    // var input, filter, table, tr, td, i, j, txtValue;
+                    // input = document.getElementById("myInput");
+                    // filter = input.value.toUpperCase();
+                    // table = document.getElementsByClassName("Inventory-table");
+                    // tr = table.getElementsByTagName("tr");
+
+                    // // Loop through all table rows, and hide those that don't match the search query
+                    // for (i = 0; i < tr.length; i++) {
+                    //     // Loop through all table columns in the current row
+                    //     for (j = 0; j < tr[i].cells.length; j++) {
+                    //     td = tr[i].cells[j];
+                    //     if (td) {
+                    //         txtValue = td.textContent || td.innerText;
+                    //         if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    //         tr[i].style.display = "";
+                    //         break; // Break the column loop and move on to the next row
+                    //         } else {
+                    //         tr[i].style.display = "none";
+                    //         }
+                    //     }
+                    //     }
+                    //     }
+                    // }
+
+
+                    function filterTable() {
+                        // Declare variables
+                        var input, filter, tables, i, j, tr, td, txtValue;
+                        input = document.getElementById("myInput");
+                        filter = input.value.toUpperCase();
+                        tables = document.querySelectorAll("table.Inventory-table");
+
+                         // Loop through all tables with class "Inventory-table"
+                         for (i = 0; i < tables.length; i++) {
+                                    tr = tables[i].getElementsByTagName("tr");
+
+                                    // Loop through all table rows, and hide those that don't match the search query
+                                    for (j = 0; j < tr.length; j++) {
+                                    if (j == 0) { // Skip the first row (header row)
+                                        continue;
+                                    }
+                                    // Loop through all table columns in the current row
+                                    for (var k = 0; k < tr[j].cells.length; k++) {
+                                        td = tr[j].cells[k];
+                                        if (td) {
+                                        txtValue = td.textContent || td.innerText;
+                                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                            tr[j].style.display = "";
+                                            break; // Break the column loop and move on to the next row
+                                        } else {
+                                            tr[j].style.display = "none";
+                                        }
+                                        }
+                                    }
+                                    }
+                                }
+                                }
+
+
+                </script>
+
+            </div>
+        </div>
+
+
+
+        <!-- JavaScript code to handle the button click event -->
+        <script>
+            document.getElementById("read_latest_invt_btn").addEventListener("click", function () {
+                // make an AJAX call to the Flask route
+                fetch('/inventory/ReadLatestInventory')
+                    .then(function (response) {
+                        // handle the response from the Flask route
+                        if (response.ok) {
+                            // parse the JSON response
+                            return response.json().then(function (data) {
+                                // call the success callback with the data object
+                                handleSuccess(data);
+                            });
+                        } else {
+                            // handle the error case
+                            console.log('Error:', response.statusText);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log('Error:', error);
+                    });
+            });
+
+            // callback function for handling successful responses
+            function handleSuccess(response) {
+                if (response.status === 'Success') {
+                    alert('Success: ' + response.message);
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            }
+        </script>
+
+
+        <div class="tab-pane fade" id="NewUpdates" role="tabpanel">
+            
+            <div class="container p-5">
+
+
+
+                <table id="update_table_InventoryM" class="update_InventoryM-table values-all">
+                    <thead>
+                        <tr>
+                            <th>ProductID</th>
+                            <th>SubTitle</th>
+                            <th>Manufacturer</th>
+                            <th>Quantity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for row in m_invt_rows %}
+                        {% if row.inv_updt_status == 0 %}
+
+                        <tr>
+                            <td><a href="/product/{{ row.productid }}" target="_blank">{{ row.productid }}</a></td>
+                            <td>{{ row.subtitle }}</td>
+                            <td>{{ row.manufacturer }}</td>
+                            <td>{{ row.quantity }}</td>
+                            <td><button type="button" class="btn-approve btn-primary" data-u-productid="{{ row.productid }}" data-u-subtitle="{{ row.subtitle }}" data-u-quantity="{{ row.quantity }}" data-u-manufacturer="{{ row.manufacturer }}" data-bs-toggle="modal" data-bs-target="#approveModal">Approve</button>
+                            </td>
+                        </tr>
+
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                    <!-- <script>
+                        function approveRow(productid, subtitle, quantity) {
+                        $.post('/inventory/InvtUpdateApprove', {'productid': productid, 'subtitle': subtitle, 'quantity': quantity}, function(data) {
+                            if (data.status === 'success') {
+                                alert('Success: ' + data.message);
+                                } else {
+                                alert('Error: ' + data.message);
+                                }
+                            });
+                            }
+                    </script> -->
+                        
+
+                    <!-- Button trigger modal -->
+
+
+                    <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="approveModalLabel">Distribute the Inventory</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="AddInventoryMtoInventory" method="POST">
+                                    <br>
+
+                                    <div class="input-group row">
+                                        <label for="u_productId" class="col col-form-label">productID:</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" name="u_productId" class="form-control"
+                                                id="u_productId" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="u_subtitle" class="col col-form-label">subtitle:</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" name="u_subtitle" class="form-control"
+                                                id="u_subtitle" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="u_manufacturer" class="col col-form-label">maufacturer:</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" name="u_manufacturer" class="form-control"
+                                                id="u_manufacturer" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="u_quantity" class="col col-form-label">Quantity:</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" name="u_quantity" class="form-control"
+                                                id="u_quantity" readonly>
+                                        </div>
+                                    </div>
+                                    <br>
+
+
+                                    <div class="input-group row">
+                                        <label for="u_Amazon" class="col col-form-label">Amazon:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_Amazon" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_Amazon">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="u_Flipkart"
+                                            class="col col-form-label">Flipkart:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_Flipkart" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_Flipkart">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="u_Myntra" class="col col-form-label">Myntra:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_Myntra" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_Myntra">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="u_Snapdeal" class="col col-form-label">Snapdeal:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_Snapdeal" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_Snapdeal">
+                                        </div>
+                                    </div>
+
+                                
+                                    <div class="input-group row">
+                                        <label for="u_Ajio" class="col col-form-label">Ajio:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_Ajio" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_Ajio">
+                                        </div>
+                                    </div>
+                                    <div class="input-group row">
+                                        <label for="u_TatacliQ" class="col col-form-label">TatacliQ:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_TatacliQ" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_TatacliQ">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="u_JioMart" class="col col-form-label">JioMart:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_JioMart" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_JioMart">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="u_Nykaa" class="col col-form-label">Nykaa:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_Nykaa" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_Nykaa">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
+                                        <label for="add_qty" class="col col-form-label">Quantity Sum</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="add_qty" class="form-control" value="0" readonly
+                                                id="add_qty">
+                                        </div>
+                                    </div>
+
+
+
+                                    <br>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="submitAddInventoryMtoInventory()">Save changes</button>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        $(document).ready(function() {
+                            // Show the modal when the approve button is clicked
+                            $('.btn-approve').click(function() {
+                                var u_productId = $(this).data('u-productid');
+                                var u_subtitle = $(this).data('u-subtitle');
+                                var u_quantity = $(this).data('u-quantity');
+                                var u_manufacturer = $(this).data('u-manufacturer');
+                                $('#u_productId').val(u_productId);
+                                $('#u_subtitle').val(u_subtitle);
+                                $('#u_quantity').val(u_quantity);
+                                $('#u_manufacturer').val(u_manufacturer);
+                                $('#approveModal').modal('show');
+                            });
+                
+                        });
+
+                        function updateTotal() {
+                            // Update the Total Quantity
+                            var A = parseInt(document.getElementById("u_Amazon").value);
+                            var F = parseInt(document.getElementById("u_Flipkart").value);
+                            var M = parseInt(document.getElementById("u_Myntra").value);
+                            var SD = parseInt(document.getElementById("u_Snapdeal").value);
+                            var AJ = parseInt(document.getElementById("u_Ajio").value);
+                            var JM = parseInt(document.getElementById("u_JioMart").value);
+                            var NK = parseInt(document.getElementById("u_Nykaa").value);
+                            var TQ = parseInt(document.getElementById("u_TatacliQ").value);
+
+                            console.log(A, F, M, SD, AJ)
+                            var total = A + F + M + SD + AJ + JM + NK + TQ;
+                            console.log(total)
+                            document.getElementById("add_qty").value = total;
+                        }
+                        
+                        function submitAddInventoryMtoInventory() {
+                            var form = document.getElementById("AddInventoryMtoInventory");
+                            var formData = new FormData(form);
+                            $.ajax({
+                                type: "POST",
+                                url: "/inventory/InvtUpdateApprove",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    if (response.status === "success") {
+                                        $('#approveModal').modal('hide');
+                                        alert(response.message);
+                                    } else if (response.status === "error_t") {
+                                        alert(response.message);
+                                    } else if (response.status === "error") {
+                                        alert(response.message);
+                                        $('#approveModal').modal('hide');
+
+                                    }
+                                    
+                                },
+                                error: function () {
+                                    alert("Failed to Update the Inventory!");
+                                }
+                            });
+                        }
+
+                        </script>
+                </div>
+
+            
+
+        </div>
+
+        <div class="tab-pane fade" id="AddInventory" role="tabpanel">
+
+            <br>
+
+            <div class="container pt-4">
+                <div class="row justify-content-center">
+
+                    <div class="col-4">
+                        <input type="text" id="SearchInvM" class="form-control" onkeyup="filterTableInvM()"
+                            placeholder="Search...">
+                    </div>
+
+                    <div class="col-auto">
+
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#staticBackdrop">
+                            Add Inventory
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
+                            tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="container p-5">
+
+
+                                            <form id="AddInventoryM" , method="POST">
+                                                <div class="input-group row">
+                                                    <label class="col col-form-label" for="productid">ProductID:</label>
+                                                    <div class="col-sm-6">
+                                                        <input list="productid" class="form-control" name="productid"
+                                                            id="productid-field" onchange="updateSubtitle()">
+                                                        <datalist id="productid">
+                                                            {% for product in product_data %}
+                                                            <option value="{{ product }}">
+                                                                {% endfor %}
+                                                        </datalist>
+                                                    </div>
+                                                </div>
+                                                <br>
+
+                                                <div class="input-group row">
+                                                    <label for="subtitle" class="col col-form-label">SubTitle:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" name="subtitle" class="form-control"
+                                                            id="subtitle-field" readonly>
+                                                    </div>
+                                                </div>
+                                                <br>
+
+
+                                                <div class="input-group row">
+                                                    <label for="manufacturer"
+                                                        class="col col-form-label">manufacturer:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" name="manufacturer" class="form-control"
+                                                            id="manufacturer" required>
+                                                    </div>
+                                                </div>
+                                                <br>
+
+
+                                                <div class="input-group row">
+                                                    <label for="quantity" class="col col-form-label">Quantity:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" name="quantity" class="form-control"
+                                                            id="quantity" required>
+                                                    </div>
+                                                </div>
+
+                                                <br>
+                                            </form>
+
+                                            <script>
+                                                var product_data = {{ product_data| tojson }};
+
+                                                function updateSubtitle() {
+                                                    var productid = document.getElementById("productid-field").value;
+                                                    var subtitle = "{{ product_data.get(productid, '') }}";
+                                                    var subtitle = product_data[productid]
+                                                    document.getElementById("subtitle-field").value = subtitle;
+                                                }
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary"
+                                            onclick="submitAddInventoryM()">Submit</button>
+                                    </div>
+
+                                    <script>
+                                        function submitAddInventoryM() {
+                                            var form = document.getElementById("AddInventoryM");
+                                            var formData = new FormData(form);
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "/inventory/AddInventoryM",
+                                                data: formData,
+                                                processData: false,
+                                                contentType: false,
+                                                success: function (response) {
+                                                    $('#staticBackdrop').modal('hide');
+                                                    alert(response.message);
+                                                    $('#AddInventoryM')[0].reset();
+                                                },
+                                                error: function () {
+                                                    alert("Failed to save manufacture details!");
+                                                    $('#AddInventoryM')[0].reset();
+
+                                                }
+                                            });
+                                        }
+
+                                    </script>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+
+                    
+
+                    <div class="container p-5">
+                        <table id="table_InventoryM" class="InventoryM-table values-all">
+                            <thead>
+                                <tr>
+                                    <th>ProductID</th>
+                                    <th>SubTitle</th>
+                                    <th>Manufacturer</th>
+                                    <th>Quantity</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+        
+                                {% for row in m_invt_rows %}
+                                <tr id="row-{{ row.productid }}">
+                                    <td><a href="/product/{{ row.productid }}" target="_blank">{{ row.productid }}</a></td>
+                                    <td>{{ row.subtitle }}</td>
+                                    <td>{{ row.manufacturer }}</td>
+                                    <td>{{ row.quantity }}</td>
+                                    <td>{{ row.date }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <script>
+
+                                function filterTableInvM() {
+                                // Declare variables
+                                var input, filter, tables, i, j, tr, td, txtValue;
+                                input = document.getElementById("SearchInvM");
+                                filter = input.value.toUpperCase();
+                                tables = document.querySelectorAll("table.InventoryM-table");
+
+                                // Loop through all tables with class "Inventory-table"
+                                for (i = 0; i < tables.length; i++) {
+                                    tr = tables[i].getElementsByTagName("tr");
+
+                                    // Loop through all table rows, and hide those that don't match the search query
+                                    for (j = 0; j < tr.length; j++) {
+                                    if (j == 0) { // Skip the first row (header row)
+                                        continue;
+                                    }
+                                    // Loop through all table columns in the current row
+                                    for (var k = 0; k < tr[j].cells.length; k++) {
+                                        td = tr[j].cells[k];
+                                        if (td) {
+                                        txtValue = td.textContent || td.innerText;
+                                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                            tr[j].style.display = "";
+                                            break; // Break the column loop and move on to the next row
+                                        } else {
+                                            tr[j].style.display = "none";
+                                        }
+                                        }
+                                    }
+                                    }
+                                }
+                                }
+
+
+                        </script>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+        </div>
+
+    </div>
+
+    <!-- <script>
+        $(document).ready(function(){
+          var tabFunctions = {
+            "#ShowUpdateInventory": "show_update_inventory"
+          };
+          
+          $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e){
+            var tab = $(e.target).attr('href');
+            var functionName = tabFunctions[tab];
+            $.ajax({
+              type: 'GET',
+              url: '/inventory/InventoryChangeTab',
+              data: {functionName: functionName},
+              success: function(response) {
+                console.log(response);
+              }
+            });
+          });
+        });
+    </script> -->
+
+</div>
+
+
+
+<style>
+    .container {
+        padding: 0;
+        max-width: inherit;
+    }
+
+    .navbar-brand {
+        margin-left: 20px;
+    }
+</style>
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td, thead {
+        text-align: left;
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+
+    th, thead {
+        background-color: #1D1D1D;
+        color: white;
+    }
+    tr{
+        height: 50px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .edit-mode td {
+        background-color: #fff8dc;
+    }
+    .sticky-header {
+        position: sticky;
+        top: 0;
+    }
+    tbody {
+        /* height: 300px; */
+        overflow-y: auto;
+        }
+
+</style>
+
+
+
+
+{% endblock %}
