@@ -1,18 +1,31 @@
-from flask import json, request, render_template,redirect, url_for, session ,jsonify
+from flask import json, request, render_template ,jsonify, session, redirect
 import pandas as pd
 from datetime import datetime, timedelta
-
+from contextlib import contextmanager
 import sqlite3
 import os
 
-Inventory_report_db_path = os.path.join(os.getcwd(), 'Database', 'Inventory.db')
-InventoryM_report_db_path = os.path.join(os.getcwd(), 'Database', 'InventoryM.db')
-Order_report_db_path = os.path.join(os.getcwd(),'Database', 'Order.db')
-Product_report_db_path = os.path.join(os.getcwd(),'Database', 'Product.db')
-Return_report_db_path = os.path.join(os.getcwd(),'Database', 'Return.db')
+# Define the database file paths
+database_dir = os.path.join(os.getcwd(), 'Database')
+inventory_report_db_path = os.path.join(database_dir, 'Inventory.db')
+order_report_db_path = os.path.join(database_dir, 'Order.db')
+product_report_db_path = os.path.join(database_dir, 'Product.db')
+return_report_db_path = os.path.join(database_dir, 'Return.db')
+
+# Function to get the database connection and cursor
+@contextmanager
+def get_db_connection(db_path):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        yield conn, cursor
+    finally:
+        cursor.close()
+        conn.close()
 
 
 platforms = {'A' : 'Amazon',
+             'A_LG': 'Amazon LG',
                 'F': 'Flipkart',
                 'M': 'Myntra',
                 'SD':'Snapdeal',
@@ -20,7 +33,8 @@ platforms = {'A' : 'Amazon',
                 'TQ': 'TataClicQ'}
 
 backgroundColor = [
-        'rgba(255, 153, 0, 0.2)',
+    'rgba(255, 153, 0, 0.2)',
+    'rgba(255, 145, 0, 0.2)',
     'rgba(54, 162, 235, 0.2)',
     'rgba(243, 25, 176, 0.2)',
     'rgba(227, 0, 71, 0.2)',
@@ -28,7 +42,8 @@ backgroundColor = [
     'rgba(171, 30, 64, 0.2)'
     ]
 borderColor = [
-        'rgba(255, 153, 0, 1)',
+    'rgba(255, 153, 0, 1)',
+    'rgba(255, 145, 0, 1)',
     'rgba(54, 162, 235, 1)',
     'rgba(243, 25, 176, 1)',
     'rgba(227, 0, 71, 1)',
@@ -39,16 +54,26 @@ borderColor = [
 
 def check_user():
     if 'user' not in session:
-        return redirect(url_for('login'))
-
+        return 'not_ok'
 
 def ProductHome():
-    check_user()
 
-    return render_template('/productSite/productHome.html')
+    if check_user() == 'not_ok':
+        render_template('login.html')
+    
+    else:
+        return render_template('/productSite/productHome.html')
 
 
 def ProductDB():
+
+    all_platforms = {'A' : 'Amazon',
+             'A_LG': 'Amazon LG',
+                'F': 'Flipkart',
+                'M': 'Myntra',
+                'SD':'Snapdeal',
+                'AJ': 'Ajio',
+                'TQ': 'TataClicQ'}
 
     OrderReport_LG = productdb_OR_line_graph()
 
@@ -61,619 +86,646 @@ def ProductDB():
     chart_data_return_report_pa = generate_return_category_PA_graph()
 
 
-    return render_template('/productSite/productdb.html',top_medium_low_data=top_medium_low_data,platforms=platforms, 
+    return render_template('/productSite/productdb.html',top_medium_low_data=top_medium_low_data,platforms=platforms,all_platforms=all_platforms, 
                            chart_data_OR=json.dumps(OrderReport_LG),chart_data_return_report_pa=chart_data_return_report_pa, 
                            chart_data_RR=chart_data_RR,product_categories=product_categories,
                            labels=labels, first_15_days_quantities=first_15_days_quantities, 
                            second_15_days_quantities=second_15_days_quantities)
 
 def productdb_OR_line_graph():
-    conn = sqlite3.connect(Order_report_db_path)
-    cur = conn.cursor()
 
-    return_conn = sqlite3.connect(Return_report_db_path)
-    return_cur = return_conn.cursor()
+    with get_db_connection(order_report_db_path) as (order_conn, order_cur), \
+         get_db_connection(return_report_db_path) as (return_conn, return_cur):
 
-    chart_data = {}
+    # conn = sqlite3.connect(order_report_db_path)
+    # cur = conn.cursor()
 
-    today = datetime.today().date()
-    four_months_ago = today - timedelta(days=120)  # Assuming 30 days per month
-    
+    # return_conn = sqlite3.connect(return_report_db_path)
+    # return_cur = return_conn.cursor()
 
-    for platform in platforms.keys():
+        chart_data = {}
 
-        query = "SELECT order_date, SUM(quantity) FROM order_report WHERE platform = ? AND order_date >= ? GROUP BY order_date"
-        cur.execute(query, (platform, four_months_ago))
-        order_data = cur.fetchall()
+        today = datetime.today().date()
+        interval_in_months = today - timedelta(days=90)  # Assuming 30 days per month
+        
 
-        query = "SELECT return_date, COUNT(*) FROM return_report WHERE platform = ? AND return_date >= ? GROUP BY return_date"
-        return_cur.execute(query, (platform, four_months_ago))
-        return_data = return_cur.fetchall()
+        for platform in platforms.keys():
 
-        # Create a set of all dates within the range
-        date_range = set()
-        for row in order_data:
-            date_range.add(row[0])
-        for row in return_data:
-            date_range.add(row[0])
+            query = "SELECT order_date, SUM(quantity) FROM order_report WHERE platform = ? AND order_date >= ? GROUP BY order_date"
+            order_cur.execute(query, (platform, interval_in_months))
+            order_data = order_cur.fetchall()
 
-        # Sort the date range
-        sorted_dates = sorted(date_range)
+            query = "SELECT return_date, COUNT(*) FROM return_report WHERE platform = ? AND return_date >= ? GROUP BY return_date"
+            return_cur.execute(query, (platform, interval_in_months))
+            return_data = return_cur.fetchall()
 
-        # Fill missing dates with 0 values
-        filled_order_data = []
-        filled_return_data = []
-        for date in sorted_dates:
-            order_quantity = next((row[1] for row in order_data if row[0] == date), 0)
-            filled_order_data.append((date, order_quantity))
-            return_quantity = next((row[1] for row in return_data if row[0] == date), 0)
-            filled_return_data.append((date, return_quantity))
+            # Create a set of all dates within the range
+            date_range = set()
+            for row in order_data:
+                date_range.add(row[0])
+            for row in return_data:
+                date_range.add(row[0])
 
-        if filled_order_data:
-            filled_order_data.sort(key=lambda x: x[0])
-            labels = [row[0] for row in filled_order_data]
-            order_dataset = {
-                'label': platforms[platform] + ' - Order Quantity',
-                'data': [row[1] for row in filled_order_data],
-                'backgroundColor': backgroundColor[list(platforms.keys()).index(platform)],
-                'borderColor': borderColor[list(platforms.keys()).index(platform)],
-                'borderWidth': 2
-            }
-            if platform in chart_data:
-                chart_data[platform]['labels'].extend(labels)
-                chart_data[platform]['datasets'].append(order_dataset)
-            else:
-                chart_data[platform] = {'labels': labels, 'datasets': [order_dataset]}
+            # Sort the date range
+            sorted_dates = sorted(date_range)
 
-        if filled_return_data:
-            filled_return_data.sort(key=lambda x: x[0])
-            return_dataset = {
-                'label': platforms[platform] + ' - Return Quantity',
-                'data': [row[1] for row in filled_return_data],
-                'backgroundColor': 'rgba(255, 26, 104, 0.2)',
-                'borderColor': 'rgba(255, 26, 104, 1)',
-                'borderWidth': 1
-                # 'borderDash': [5, 5],
-            }
-            if platform in chart_data:
-                chart_data[platform]['datasets'].append(return_dataset)
-            else:
-                chart_data[platform] = {'datasets': [return_dataset]}
+            # Fill missing dates with 0 values
+            filled_order_data = []
+            filled_return_data = []
+            for date in sorted_dates:
+                order_quantity = next((row[1] for row in order_data if row[0] == date), 0)
+                filled_order_data.append((date, order_quantity))
+                return_quantity = next((row[1] for row in return_data if row[0] == date), 0)
+                filled_return_data.append((date, return_quantity))
 
-    conn.close()
+            if filled_order_data:
+                filled_order_data.sort(key=lambda x: x[0])
+                labels = [row[0] for row in filled_order_data]
+                order_dataset = {
+                    'label': platforms[platform] + ' - Order Quantity',
+                    'data': [row[1] for row in filled_order_data],
+                    'backgroundColor': backgroundColor[list(platforms.keys()).index(platform)],
+                    'borderColor': borderColor[list(platforms.keys()).index(platform)],
+                    'borderWidth': 2
+                }
+                if platform in chart_data:
+                    chart_data[platform]['labels'].extend(labels)
+                    chart_data[platform]['datasets'].append(order_dataset)
+                else:
+                    chart_data[platform] = {'labels': labels, 'datasets': [order_dataset]}
 
-    return chart_data
+            if filled_return_data:
+                filled_return_data.sort(key=lambda x: x[0])
+                return_dataset = {
+                    'label': platforms[platform] + ' - Return Quantity',
+                    'data': [row[1] for row in filled_return_data],
+                    'backgroundColor': 'rgba(255, 26, 104, 0.2)',
+                    'borderColor': 'rgba(255, 26, 104, 1)',
+                    'borderWidth': 1
+                    # 'borderDash': [5, 5],
+                }
+                if platform in chart_data:
+                    chart_data[platform]['datasets'].append(return_dataset)
+                else:
+                    chart_data[platform] = {'datasets': [return_dataset]}
+
+        # conn.close()
+
+        return chart_data
 
 
 
 def generate_return_count_line_graph():
 
-    return_conn = sqlite3.connect(Return_report_db_path)
-    return_cur = return_conn.cursor()
+    # return_conn = sqlite3.connect(return_report_db_path)
+    # return_cur = return_conn.cursor()
 
-    conn_product = sqlite3.connect(Product_report_db_path)
-    cursor_product = conn_product.cursor()
+    # conn_product = sqlite3.connect(product_report_db_path)
+    # cursor_product = conn_product.cursor()
 
-    cursor_product.execute('SELECT ProductID, SubTitle FROM product_details')
-    product_data = cursor_product.fetchall()
-
-    # Create a dictionary to map product IDs to subtitle names
-    product_map = {row[0]: row[1] for row in product_data}
-
-    chart_data = {}
-
-    today = datetime.today().date()
-    four_months_ago = today - timedelta(days=120)  # Assuming 30 days per month
-
-    for platform in platforms.keys():
-        query = "SELECT return_date, COUNT(*) FROM return_report WHERE platform = ? AND return_date >= ? GROUP BY return_date"
-        return_cur.execute(query, (platform, four_months_ago))
-        return_data = return_cur.fetchall()
-
-        if return_data:
-            return_data.sort(key=lambda x: x[0])
-            return_dataset = {
-                'label': platforms[platform] + ' - Return Quantity',
-                'data': [row[1] for row in return_data],
-                'backgroundColor': backgroundColor[list(platforms.keys()).index(platform)],
-                'borderColor': borderColor[list(platforms.keys()).index(platform)],
-                'borderWidth': 2
-            }
-            labels = [row[0] for row in return_data]
-            
-            # Get tooltip information for each return date
-            tooltips = []
-            for row in return_data:
-                return_date = row[0]
-                query = "SELECT productid, return_reason FROM return_report WHERE platform = ? AND return_date = ? AND productid IS NOT NULL"
-                return_cur.execute(query, (platform, return_date))
-                tooltip_data = return_cur.fetchall()
-                tooltip = "Return Date:" + return_date + "\n" + "\n"
-                for tooltip_row in tooltip_data:
-                    product_id = tooltip_row[0]
-                    return_reason = tooltip_row[1]
-                    if product_id is not None and return_reason is not None:
-                         # Replace the product ID with the subtitle name
-                        subtitle = product_map.get(product_id, '')
-                        tooltip += str(subtitle) + " - " + return_reason + "\n"
-                tooltips.append(tooltip)
+    with get_db_connection(product_report_db_path) as (product_conn, product_cur), \
+         get_db_connection(return_report_db_path) as (return_conn, return_cur):
 
 
-            chart_data[platform] = {'labels': labels, 'datasets': [return_dataset], 'tooltips': tooltips}
+        product_cur.execute('SELECT ProductID, SubTitle FROM product_details')
+        product_data = product_cur.fetchall()
+
+        # Create a dictionary to map product IDs to subtitle names
+        product_map = {row[0]: row[1] for row in product_data}
+
+        chart_data = {}
+
+        today = datetime.today().date()
+        four_months_ago = today - timedelta(days=90)  # Assuming 30 days per month
+
+        for platform in platforms.keys():
+            query = "SELECT return_date, COUNT(*) FROM return_report WHERE platform = ? AND return_date >= ? GROUP BY return_date"
+            return_cur.execute(query, (platform, four_months_ago))
+            return_data = return_cur.fetchall()
+
+            if return_data:
+                return_data.sort(key=lambda x: x[0])
+                return_dataset = {
+                    'label': platforms[platform] + ' - Return Quantity',
+                    'data': [row[1] for row in return_data],
+                    'backgroundColor': backgroundColor[list(platforms.keys()).index(platform)],
+                    'borderColor': borderColor[list(platforms.keys()).index(platform)],
+                    'borderWidth': 2
+                }
+                labels = [row[0] for row in return_data]
+                
+                # Get tooltip information for each return date
+                tooltips = []
+                for row in return_data:
+                    return_date = row[0]
+                    query = "SELECT productid, return_reason FROM return_report WHERE platform = ? AND return_date = ? AND productid IS NOT NULL"
+                    return_cur.execute(query, (platform, return_date))
+                    tooltip_data = return_cur.fetchall()
+                    tooltip = "Return Date:" + return_date + "\n" + "\n"
+                    for tooltip_row in tooltip_data:
+                        product_id = tooltip_row[0]
+                        return_reason = tooltip_row[1]
+                        if product_id is not None and return_reason is not None:
+                            # Replace the product ID with the subtitle name
+                            subtitle = product_map.get(product_id, '')
+                            tooltip += str(subtitle) + " - " + return_reason + "\n"
+                    tooltips.append(tooltip)
 
 
-    return_conn.close()
+                chart_data[platform] = {'labels': labels, 'datasets': [return_dataset], 'tooltips': tooltips}
 
-    return chart_data
+
+        # return_conn.close()
+
+        return chart_data
 
 
 
 
 def top_medium_low_product():
 
-    conn_order = sqlite3.connect(Order_report_db_path)
+    # conn_order = sqlite3.connect(order_report_db_path)
 
-    # Define the start and end dates for the past week
-    end_date = datetime.now().date()
-    start_date = end_date - timedelta(days=30)
+    with get_db_connection(order_report_db_path) as (order_conn, order_cur), \
+        get_db_connection(product_report_db_path) as (product_conn, product_cur), \
+        get_db_connection(inventory_report_db_path) as (inventory_conn, inventory_cur):
 
-    date_format = '%Y-%m-%d'
+    
+        # Define the start and end dates for the past week
+        end_date = datetime.now().date()
+        start_date = end_date - timedelta(days=30)
 
-    # Parse the start and end dates
-    start_date = datetime.strptime(start_date.strftime('%Y-%m-%d'), date_format).date()
-    end_date = datetime.strptime(end_date.strftime('%Y-%m-%d'), date_format).date()
+        date_format = '%Y-%m-%d'
 
-    query = f"SELECT * FROM order_report WHERE order_date >= '{start_date}' AND order_date <= '{end_date}'"
+        # Parse the start and end dates
+        start_date = datetime.strptime(start_date.strftime('%Y-%m-%d'), date_format).date()
+        end_date = datetime.strptime(end_date.strftime('%Y-%m-%d'), date_format).date()
 
-    order_report = pd.read_sql_query(query, conn_order)
+        query = f"SELECT * FROM order_report WHERE order_date >= '{start_date}' AND order_date <= '{end_date}'"
 
-    # Group the data by 'platform' and 'productid', calculate the sum of 'quantity' for each group
-    grouped = order_report.groupby(['platform', 'productid']).agg({'quantity': 'sum'}).reset_index()
+        order_report = pd.read_sql_query(query, order_conn)
 
-    # Define the cutoffs for top, medium, and low selling
-    top_cutoff = grouped['quantity'].quantile(0.90)
-    low_cutoff = grouped['quantity'].quantile(0.70)
+        # Group the data by 'platform' and 'productid', calculate the sum of 'quantity' for each group
+        grouped = order_report.groupby(['platform', 'productid']).agg({'quantity': 'sum'}).reset_index()
 
-    # Function to categorize the products based on quantity
-    def categorize(quantity):
-        if quantity >= top_cutoff:
-            return 'top selling'
-        elif quantity <= low_cutoff:
-            return 'low selling'
-        else:
-            return 'medium selling'
+        # Define the cutoffs for top, medium, and low selling
+        top_cutoff = grouped['quantity'].quantile(0.90)
+        low_cutoff = grouped['quantity'].quantile(0.70)
 
-    # Apply the categorize function to create the 'trend_status' column
-    grouped['trend_status'] = grouped['quantity'].apply(categorize)
+        # Function to categorize the products based on quantity
+        def categorize(quantity):
+            if quantity >= top_cutoff:
+                return 'top selling'
+            elif quantity <= low_cutoff:
+                return 'low selling'
+            else:
+                return 'medium selling'
 
-    # Rename the 'quantity' column to 'SumOfQuantity' as mentioned in the desired table
-    grouped.rename(columns={'quantity': 'SumOfQuantity'}, inplace=True)
+        # Apply the categorize function to create the 'trend_status' column
+        grouped['trend_status'] = grouped['quantity'].apply(categorize)
 
-
-    reorder = ['productid', 'SumOfQuantity', 'platform', 'trend_status']
-    grouped = grouped.reindex(columns=reorder)
-
-
-    conn_product = sqlite3.connect(Product_report_db_path)
-    product_report = pd.read_sql_query('SELECT * FROM product_details', conn_product)
-    product_report_subset = product_report[['ProductID', 'SubTitle', 'ImgURL', 'ProductCategory']]
-    product_report_subset.rename(columns = {'ProductID':'productid'}, inplace = True)
-
-    Top_Medium_Low = pd.merge(grouped[['productid', 'SumOfQuantity', 'platform', 'trend_status']], product_report_subset, on=['productid'], how='left')
-
-    conn_inventory = sqlite3.connect(Inventory_report_db_path)
-    invt_report = pd.read_sql_query('SELECT * FROM inventory_report', conn_inventory)
-    invt_report_subset = invt_report[['ProductID', 'TInventory']]
-    invt_report_subset.rename(columns = {'ProductID':'productid'}, inplace = True)
-    invt_report_subset.drop_duplicates(keep='first', inplace=True)
+        # Rename the 'quantity' column to 'SumOfQuantity' as mentioned in the desired table
+        grouped.rename(columns={'quantity': 'SumOfQuantity'}, inplace=True)
 
 
-    Top_Medium_Low = pd.merge(Top_Medium_Low, invt_report_subset, on=['productid'], how='left')
-
-    Top_Medium_Low = Top_Medium_Low.sort_values(by=['SumOfQuantity'], ascending=False)
-
+        reorder = ['productid', 'SumOfQuantity', 'platform', 'trend_status']
+        grouped = grouped.reindex(columns=reorder)
 
 
+        # conn_product = sqlite3.connect(product_report_db_path)
+        product_report = pd.read_sql_query('SELECT * FROM product_details', product_conn)
+        product_report_subset = product_report[['ProductID', 'SubTitle', 'ImgURL', 'ProductCategory']]
+        product_report_subset.rename(columns = {'ProductID':'productid'}, inplace = True)
 
-    # Top_Medium_Low.to_csv('top_medium_low.csv', index=False)
+        Top_Medium_Low = pd.merge(grouped[['productid', 'SumOfQuantity', 'platform', 'trend_status']], product_report_subset, on=['productid'], how='left')
 
-    product_categories = Top_Medium_Low['ProductCategory'].unique()
-
-
-    Top_Medium_Low = Top_Medium_Low.to_dict('records')
-
-    conn_order.close()
-    conn_product.close()
+        # conn_inventory = sqlite3.connect(inventory_report_db_path)
+        invt_report = pd.read_sql_query('SELECT * FROM inventory_report', inventory_conn)
+        invt_report_subset = invt_report[['ProductID', 'TInventory']]
+        invt_report_subset.rename(columns = {'ProductID':'productid'}, inplace = True)
+        invt_report_subset.drop_duplicates(keep='first', inplace=True)
 
 
-    return Top_Medium_Low, product_categories
+        Top_Medium_Low = pd.merge(Top_Medium_Low, invt_report_subset, on=['productid'], how='left')
+
+        Top_Medium_Low = Top_Medium_Low.sort_values(by=['SumOfQuantity'], ascending=False)
+
+
+        # Top_Medium_Low.to_csv('top_medium_low.csv', index=False)
+
+        product_categories = Top_Medium_Low['ProductCategory'].unique()
+        Top_Medium_Low = Top_Medium_Low.to_dict('records')
+
+        # conn_order.close()
+        # conn_product.close()
+
+
+        return Top_Medium_Low, product_categories
 
 
 
 def productid_p_comparison():
+
     # Connect to the SQLite database
-    conn_order  = sqlite3.connect(Order_report_db_path)
-    conn_product = sqlite3.connect(Product_report_db_path)
-    cursor_order = conn_order.cursor()
-    cursor_product = conn_product.cursor()
+    # conn_order  = sqlite3.connect(order_report_db_path)
+    # conn_product = sqlite3.connect(product_report_db_path)
+    # cursor_order = conn_order.cursor()
+    # cursor_product = conn_product.cursor()
+
+    with get_db_connection(order_report_db_path) as (order_conn, order_cur), \
+        get_db_connection(product_report_db_path) as (product_conn, product_cur):
 
 
-    # Query the database to retrieve the quantities for each 15-day period and platform
-    cursor_order.execute('''
-        SELECT productid,
-               platform,
-               SUM(CASE WHEN order_date BETWEEN date('now', '-30 days') AND date('now', '-16 days') THEN quantity ELSE 0 END) AS first_15_days,
-               SUM(CASE WHEN order_date BETWEEN date('now', '-15 days') AND date('now') THEN quantity ELSE 0 END) AS second_15_days
-        FROM order_report
-        GROUP BY productid, platform
-        HAVING ABS(first_15_days - second_15_days) >= 10
-    ''')
-    data = cursor_order.fetchall()
+        # Query the database to retrieve the quantities for each 15-day period and platform
+        order_cur.execute('''
+            SELECT productid,
+                platform,
+                SUM(CASE WHEN order_date BETWEEN date('now', '-30 days') AND date('now', '-16 days') THEN quantity ELSE 0 END) AS first_15_days,
+                SUM(CASE WHEN order_date BETWEEN date('now', '-15 days') AND date('now') THEN quantity ELSE 0 END) AS second_15_days
+            FROM order_report
+            GROUP BY productid, platform
+            HAVING ABS(first_15_days - second_15_days) >= 10
+        ''')
+        data = order_cur.fetchall()
 
 
-    # Query the Product database to retrieve the subtitle names
-    cursor_product.execute('SELECT ProductID, SubTitle FROM product_details')
-    product_data = cursor_product.fetchall()
+        # Query the Product database to retrieve the subtitle names
+        product_cur.execute('SELECT ProductID, SubTitle FROM product_details')
+        product_data = product_cur.fetchall()
 
-    # Get unique platforms from the data
-    platforms = list(set(row[1] for row in data))
-
-
-    # Close the database connections
-    conn_order.close()
-    conn_product.close()
+        # Get unique platforms from the data
+        platforms = list(set(row[1] for row in data))
 
 
-    # Remove None values from the data
-    data = [row for row in data if row[0] is not None]
-
-    # Prepare the data for the bar chart
-    labels = []
-    first_15_days_quantities = {}
-    second_15_days_quantities = {}
-
-    # Create a dictionary to map product IDs to subtitle names
-    product_map = {row[0]: row[1] for row in product_data}
-
-    for row in data:
-        
-        product_id = row[0]
-        platform = row[1]
+        # Close the database connections
+        # conn_order.close()
+        # conn_product.close()
 
 
-         # Replace the product ID with the subtitle name
-        subtitle = product_map.get(product_id, '')
-        if subtitle not in labels:
-            labels.append(subtitle)
+        # Remove None values from the data
+        data = [row for row in data if row[0] is not None]
 
-        if subtitle not in first_15_days_quantities:
-            first_15_days_quantities[subtitle] = {}
+        # Prepare the data for the bar chart
+        labels = []
+        first_15_days_quantities = {}
+        second_15_days_quantities = {}
 
-        if subtitle not in second_15_days_quantities:
-            second_15_days_quantities[subtitle] = {}
+        # Create a dictionary to map product IDs to subtitle names
+        product_map = {row[0]: row[1] for row in product_data}
 
-        first_15_days_quantities[subtitle][platform] = row[2]
-        second_15_days_quantities[subtitle][platform] = row[3]
+        for row in data:
+            
+            product_id = row[0]
+            platform = row[1]
 
-    return labels, first_15_days_quantities, second_15_days_quantities, platforms
+
+            # Replace the product ID with the subtitle name
+            subtitle = product_map.get(product_id, '')
+            if subtitle not in labels:
+                labels.append(subtitle)
+
+            if subtitle not in first_15_days_quantities:
+                first_15_days_quantities[subtitle] = {}
+
+            if subtitle not in second_15_days_quantities:
+                second_15_days_quantities[subtitle] = {}
+
+            first_15_days_quantities[subtitle][platform] = row[2]
+            second_15_days_quantities[subtitle][platform] = row[3]
+
+        return labels, first_15_days_quantities, second_15_days_quantities, platforms
 
 
 
 def ProductSearch():
 
-    # Connect to the SQLite database
-    inv_conn = sqlite3.connect(Inventory_report_db_path)
-    inv_cursor = inv_conn.cursor()
+    with get_db_connection(inventory_report_db_path) as (inevntory_conn, inventory_cur), \
+        get_db_connection(product_report_db_path) as (product_conn, product_cur):
 
-    # Retrieve the distinct ProductID and Platform combinations from the table
-    inv_cursor.execute("SELECT DISTINCT ProductID, Platform FROM inventory_report")
-    rows = inv_cursor.fetchall()
+        # Retrieve the distinct ProductID and Platform combinations from the table
+        inventory_cur.execute("SELECT DISTINCT ProductID, Platform FROM inventory_report")
+        rows = inventory_cur.fetchall()
 
-    # Create a dictionary to store the ProductID and corresponding SKU for each platform
-    product_dict = {}
-    for row in rows:
-        product_id = row[0]
-        platform = row[1]
+        # Create a dictionary to store the ProductID and corresponding SKU for each platform
+        product_dict = {}
+        for row in rows:
+            product_id = row[0]
+            platform = row[1]
 
-        # Retrieve the SKUs for the current ProductID and Platform combination
-        inv_cursor.execute("SELECT SKU FROM inventory_report WHERE ProductID = ? AND Platform = ?", (product_id, platform))
-        sku_rows = inv_cursor.fetchall()
-        skus = [sku[0] for sku in sku_rows]
+            # Retrieve the SKUs for the current ProductID and Platform combination
+            inventory_cur.execute("SELECT SKU FROM inventory_report WHERE ProductID = ? AND Platform = ?", (product_id, platform))
+            sku_rows = inventory_cur.fetchall()
+            skus = [sku[0] for sku in sku_rows]
 
-        # Add the platform and SKUs to the dictionary
-        if product_id in product_dict:
-            product_dict[product_id][platform] = skus
-        else:
-            product_dict[product_id] = {platform: skus}
+            # Add the platform and SKUs to the dictionary
+            if product_id in product_dict:
+                product_dict[product_id][platform] = skus
+            else:
+                product_dict[product_id] = {platform: skus}
 
-    # Close the database connection
-    inv_conn.close()
+        # Close the database connection
+        # inv_conn.close()
 
-    # Create a dataframe from the dictionary
-    inv_df = pd.DataFrame.from_dict(product_dict, orient='index')
+        # Create a dataframe from the dictionary
+        inv_df = pd.DataFrame.from_dict(product_dict, orient='index')
 
-    # Move the index as a column
-    inv_df.reset_index(inplace=True)
+        # Move the index as a column
+        inv_df.reset_index(inplace=True)
 
-    # Name the first column as 'ProductID'
-    inv_df.rename(columns={'index': 'ProductID'}, inplace=True)
-
-
-    # Remove square brackets '[' and ']' from values
-    inv_df = inv_df.applymap(lambda x: ', '.join(x) if isinstance(x, list) else x)
-    # Fill NaN values with an empty string
-    inv_df.fillna('', inplace=True)
+        # Name the first column as 'ProductID'
+        inv_df.rename(columns={'index': 'ProductID'}, inplace=True)
 
 
-    # Connect to the product_details database
-    product_conn = sqlite3.connect(Product_report_db_path)
-
-        # Define the SQL query to fetch data from the product_details database
-    product_query = '''
-    SELECT ProductID, SubTitle, ImgURL
-    FROM product_details
-    '''
-
-    # Execute the queries and read the results into Pandas DataFrames
-    product_df = pd.read_sql_query(product_query, product_conn)
-
-    invt_product_merged = pd.merge(inv_df, product_df, on='ProductID')
+        # Remove square brackets '[' and ']' from values
+        inv_df = inv_df.applymap(lambda x: ', '.join(x) if isinstance(x, list) else x)
+        # Fill NaN values with an empty string
+        inv_df.fillna('NA', inplace=True)
 
 
-    # Convert the DataFrame to a list of dictionaries
-    rows = invt_product_merged.to_dict('records')
+        # Connect to the product_details database
+        # product_conn = sqlite3.connect(product_report_db_path)
 
-    return render_template('/productSite/productSearch.html', data=rows)
+            # Define the SQL query to fetch data from the product_details database
+        product_query = '''
+        SELECT ProductID, SubTitle, ImgURL
+        FROM product_details
+        '''
+
+        # Execute the queries and read the results into Pandas DataFrames
+        product_df = pd.read_sql_query(product_query, product_conn)
+
+        invt_product_merged = pd.merge(inv_df, product_df, on='ProductID')
+
+
+        # Convert the DataFrame to a list of dictionaries
+        rows = invt_product_merged.to_dict('records')
+
+        return render_template('/productSite/productSearch.html', data=rows)
 
 def generate_product_order_graph(product_id):
 
-    print(product_id)
-    conn = sqlite3.connect(Order_report_db_path)
-    cur = conn.cursor()
+    # conn = sqlite3.connect(order_report_db_path)
+    # cur = conn.cursor()
 
-    chart_data = {}
+    with get_db_connection(order_report_db_path) as (order_conn, order_cur):
 
-    for platform in platforms.keys():
-        # print(platform)
-        query = "SELECT order_date, SUM(quantity) FROM order_report WHERE productid = ? AND platform = ? GROUP BY order_date"
-        cur.execute(query, (product_id, platform))
-        data = cur.fetchall()
-
-        if data:
-            data.sort(key=lambda x: x[0])
-            labels = [row[0] for row in data]
-            dataset = {
-                'label': platforms[platform],
-                'data': [row[1] for row in data],
-                'backgroundColor': backgroundColor[list(platforms.keys()).index(platform)],
-                'borderColor': borderColor[list(platforms.keys()).index(platform)],
-                'borderWidth': 2
-            }
-            if platform in chart_data:
-                chart_data[platform]['labels'].extend(labels)
-                chart_data[platform]['datasets'].append(dataset)
-            else:
-                chart_data[platform] = {'labels': labels, 'datasets': [dataset]}
-    
         
-    conn.close()
 
-    return chart_data
+        chart_data = {}
+
+        for platform in platforms.keys():
+            # print(platform)
+            query = "SELECT order_date, SUM(quantity) FROM order_report WHERE productid = ? AND platform = ? GROUP BY order_date"
+            order_cur.execute(query, (product_id, platform))
+            data = order_cur.fetchall()
+
+            if data:
+                data.sort(key=lambda x: x[0])
+                labels = [row[0] for row in data]
+                dataset = {
+                    'label': platforms[platform],
+                    'data': [row[1] for row in data],
+                    'backgroundColor': backgroundColor[list(platforms.keys()).index(platform)],
+                    'borderColor': borderColor[list(platforms.keys()).index(platform)],
+                    'borderWidth': 2
+                }
+                if platform in chart_data:
+                    chart_data[platform]['labels'].extend(labels)
+                    chart_data[platform]['datasets'].append(dataset)
+                else:
+                    chart_data[platform] = {'labels': labels, 'datasets': [dataset]}
+        
+            
+        # conn.close()
+
+        return chart_data
 
 
 
 
 def Generate_productdb_OR_Polar():
 
-    print('ss')
-    # Connect to the database
-    conn = sqlite3.connect(Order_report_db_path)
-    cursor = conn.cursor()
+    with get_db_connection(order_report_db_path) as (order_conn, order_cur):
 
-    order_date = request.form.get('order_date')
-    platform = request.form.get('platform')
 
-    # SQL query to retrieve the sum of quantity based on filters
-    query = '''
-        SELECT productid, SUM(quantity) as total_quantity
-        FROM order_report
-        WHERE order_date = ? AND platform = ?
-        GROUP BY productid
-    '''
-    cursor.execute(query, (order_date, platform))
-    rows = cursor.fetchall()
+        order_date = request.form.get('order_date')
+        platform = request.form.get('platform')
 
-    data = []
-    for row in rows:
-        data.append({'productid': row[0], 'quantity': row[1]})
+        # SQL query to retrieve the sum of quantity based on filters
+        query = '''
+            SELECT productid, SUM(quantity) as total_quantity
+            FROM order_report
+            WHERE order_date = ? AND platform = ?
+            GROUP BY productid
+        '''
+        order_cur.execute(query, (order_date, platform))
+        rows = order_cur.fetchall()
 
-    conn.close()
+        data = []
+        for row in rows:
+            data.append({'productid': row[0], 'quantity': row[1]})
 
-    return jsonify(data)
+        # conn.close()
+
+        return jsonify(data)
 
 
 def generate_return_category_PA_graph():
-    conn = sqlite3.connect(Return_report_db_path)
-    cur = conn.cursor()
 
-    conn_product = sqlite3.connect(Product_report_db_path)
-    cur_product = conn_product.cursor()
 
-    chart_data = {}
+    # conn = sqlite3.connect(return_report_db_path)
+    # cur = conn.cursor()
 
-    for platform in platforms.keys():
-        query = "SELECT reason_category, COUNT(*) FROM return_report WHERE platform = ? GROUP BY reason_category"
-        cur.execute(query, (platform,))
-        data = cur.fetchall()
+    # conn_product = sqlite3.connect(product_report_db_path)
+    # cur_product = conn_product.cursor()
 
-        if data:
-            data.sort(key=lambda x: x[0])
-            labels = [row[0] for row in data]
-            counts = [row[1] for row in data]
-            product_info = []
+    with get_db_connection(product_report_db_path) as (product_conn, product_cur), \
+        get_db_connection(return_report_db_path) as (return_conn, return_cur):
 
-            for label in labels:
-                query = "SELECT productid, COUNT(*) FROM return_report WHERE platform = ? AND reason_category = ? GROUP BY productid"
-                cur.execute(query, (platform, label))
-                product_data = cur.fetchall()
+        chart_data = {}
 
-                product_data = [[product_id, count] for product_id, count in product_data if product_id is not None]
-                product_data.sort(key=lambda x: x[1], reverse=True)
-                top_product_data = product_data[:10]
+        for platform in platforms.keys():
+            query = "SELECT reason_category, COUNT(*) FROM return_report WHERE platform = ? GROUP BY reason_category"
+            return_cur.execute(query, (platform,))
+            data = return_cur.fetchall()
 
-                # Fetch subtitle from product_details database
-                subtitle_info = []
-                for product_id, count in top_product_data:
-                    cur_product.execute("SELECT SubTitle FROM product_details WHERE ProductID = ?", (product_id,))
-                    subtitle = cur_product.fetchone()
-                    if subtitle:
-                        subtitle_info.append((subtitle[0], count))
+            if data:
+                data.sort(key=lambda x: x[0])
+                labels = [row[0] for row in data]
+                counts = [row[1] for row in data]
+                product_info = []
 
-                product_info.append(subtitle_info)
+                for label in labels:
+                    query = "SELECT productid, COUNT(*) FROM return_report WHERE platform = ? AND reason_category = ? GROUP BY productid"
+                    return_cur.execute(query, (platform, label))
+                    product_data = return_cur.fetchall()
 
-            dataset = {
-                'label': platforms[platform],
-                'data': counts,
-                'backgroundColor': backgroundColor,
-                'borderColor': borderColor,
-                'borderWidth': 2,
-                'productInfo': product_info
-            }
-            chart_data[platform] = {'labels': labels, 'datasets': [dataset]}
+                    product_data = [[product_id, count] for product_id, count in product_data if product_id is not None]
+                    product_data.sort(key=lambda x: x[1], reverse=True)
+                    top_product_data = product_data[:10]
 
-    conn.close()
-    conn_product.close()
+                    # Fetch subtitle from product_details database
+                    subtitle_info = []
+                    for product_id, count in top_product_data:
+                        product_cur.execute("SELECT SubTitle FROM product_details WHERE ProductID = ?", (product_id,))
+                        subtitle = product_cur.fetchone()
+                        if subtitle:
+                            subtitle_info.append((subtitle[0], count))
 
-    return chart_data
+                    product_info.append(subtitle_info)
+
+                dataset = {
+                    'label': platforms[platform],
+                    'data': counts,
+                    'backgroundColor': backgroundColor,
+                    'borderColor': borderColor,
+                    'borderWidth': 2,
+                    'productInfo': product_info
+                }
+                chart_data[platform] = {'labels': labels, 'datasets': [dataset]}
+
+        # conn.close()
+        # conn_product.close()
+
+        return chart_data
 
 
 def generate_product_return_graph(product_id):
 
-    print(product_id)
-    conn = sqlite3.connect(Return_report_db_path)
-    cur = conn.cursor()
+    # conn = sqlite3.connect(return_report_db_path)
+    # cur = conn.cursor()
 
-    chart_data = {}
+    with get_db_connection(return_report_db_path) as (return_conn, order_cur):
 
-    for platform in platforms.keys():
-        # print(platform)
-        query = "SELECT reason_category, COUNT(*) FROM return_report WHERE productid = ? AND platform = ? GROUP BY reason_category"
-        cur.execute(query, (product_id, platform))
-        data = cur.fetchall()
+        chart_data = {}
 
-        # print(data)
+        for platform in platforms.keys():
+            # print(platform)
+            query = "SELECT reason_category, COUNT(*) FROM return_report WHERE productid = ? AND platform = ? GROUP BY reason_category"
+            order_cur.execute(query, (product_id, platform))
+            data = order_cur.fetchall()
 
-        if data:
-            data.sort(key=lambda x: x[0])
-            labels = [row[0] for row in data]
-            dataset = {
-                'label': platforms[platform],
-                'data': [row[1] for row in data],
-                'backgroundColor': backgroundColor,
-                'borderColor': borderColor,
-                'borderWidth': 2
-            }
-            if platform in chart_data:
-                chart_data[platform]['labels'].extend(labels)
-                chart_data[platform]['datasets'].append(dataset)
-            else:
-                chart_data[platform] = {'labels': labels, 'datasets': [dataset]}
-    
+            # print(data)
+
+            if data:
+                data.sort(key=lambda x: x[0])
+                labels = [row[0] for row in data]
+                dataset = {
+                    'label': platforms[platform],
+                    'data': [row[1] for row in data],
+                    'backgroundColor': backgroundColor,
+                    'borderColor': borderColor,
+                    'borderWidth': 2
+                }
+                if platform in chart_data:
+                    chart_data[platform]['labels'].extend(labels)
+                    chart_data[platform]['datasets'].append(dataset)
+                else:
+                    chart_data[platform] = {'labels': labels, 'datasets': [dataset]}
         
-    conn.close()
+            
+        # conn.close()
 
-    return chart_data
+        return chart_data
 
 
 def geneate_product_return_line_graph(product_id):
 
-    print(product_id)
-    conn = sqlite3.connect(Return_report_db_path)
-    cur = conn.cursor()
+    # conn = sqlite3.connect(return_report_db_path)
+    # cur = conn.cursor()
 
-    chart_data = {}
- 
+    with get_db_connection(return_report_db_path) as (return_conn, order_cur):
 
-    for platform in platforms.keys():
-        # print(platform)
-        query = "SELECT return_date, COUNT(*) FROM return_report WHERE productid = ? AND platform = ? GROUP BY return_date"
-        cur.execute(query, (product_id, platform))
-        data = cur.fetchall()
 
-        if data:
-            data.sort(key=lambda x: x[0])
-            labels = [row[0] for row in data]
-            dataset = {
-                'label': platforms[platform],
-                'data': [row[1] for row in data],
-                'backgroundColor': backgroundColor[list(platforms.keys()).index(platform)],
-                'borderColor': borderColor[list(platforms.keys()).index(platform)],
-                'borderWidth': 2
-            }
-            if platform in chart_data:
-                chart_data[platform]['labels'].extend(labels)
-                chart_data[platform]['datasets'].append(dataset)
-            else:
-                chart_data[platform] = {'labels': labels, 'datasets': [dataset]}
+        chart_data = {}
     
-        
-    conn.close()
 
-    return chart_data
+        for platform in platforms.keys():
+            # print(platform)
+            query = "SELECT return_date, COUNT(*) FROM return_report WHERE productid = ? AND platform = ? GROUP BY return_date"
+            order_cur.execute(query, (product_id, platform))
+            data = order_cur.fetchall()
+
+            if data:
+                data.sort(key=lambda x: x[0])
+                labels = [row[0] for row in data]
+                dataset = {
+                    'label': platforms[platform],
+                    'data': [row[1] for row in data],
+                    'backgroundColor': backgroundColor[list(platforms.keys()).index(platform)],
+                    'borderColor': borderColor[list(platforms.keys()).index(platform)],
+                    'borderWidth': 2
+                }
+                if platform in chart_data:
+                    chart_data[platform]['labels'].extend(labels)
+                    chart_data[platform]['datasets'].append(dataset)
+                else:
+                    chart_data[platform] = {'labels': labels, 'datasets': [dataset]}
+        
+            
+        # conn.close()
+
+        return chart_data
 
 
 
 def ProductPage(product_id):
+
     # Connect to inventory_report database and retrieve all SKUs for the product_id
-    inv_conn = sqlite3.connect(Inventory_report_db_path)
-    inv_c = inv_conn.cursor()
-    inv_c.execute("SELECT SKU, Platform, PlatformID FROM inventory_report WHERE ProductID=?", (product_id,))
-    sku_rows = inv_c.fetchall()
-    sku_dict = {}
-    # for row in sku_rows:
-    #     if row[1] in sku_dict:
-    #         sku_dict[row[1]] = sku_dict[row[1]] + ',' + row[0]
-    #     else:
-    #         sku_dict[row[1]] = row[0]
+    # inv_conn = sqlite3.connect(inventory_report_db_path)
+    # inv_c = inv_conn.cursor()
 
-    sku_dict = {}
-    for row in sku_rows:
-        if row[1] in sku_dict:
-            sku_dict[row[1]]['skus'].append(row[0])
-            sku_dict[row[1]]['platform_ids'].append(row[2])
-        else:
-            sku_dict[row[1]] = {
-                'skus': [row[0]],
-                'platform_ids': [row[2]]
-            }
+    with get_db_connection(product_report_db_path) as (product_conn, product_cur), \
+        get_db_connection(inventory_report_db_path) as (inventory_conn, inventory_cur):
 
-    # Connect to product_report database and retrieve all data for the product_id
-    prod_conn = sqlite3.connect(Product_report_db_path)
-    prod_c = prod_conn.cursor()
-    prod_c.execute("SELECT * FROM product_details WHERE ProductID=?", (product_id,))
-    row = prod_c.fetchone()
 
-    product_details = {
-        'id': row[0],
-        'Title': row[1],
-        'SubTitle': row[2],
-        'description': row[3],
-        'features': row[4], #row[4].split(',')
-        'dimensions': row[5],
-        'skus': sku_dict,
-        'image_url': row[6]
-    }
+        inventory_cur.execute("SELECT SKU, Platform, PlatformID FROM inventory_report WHERE ProductID=?", (product_id,))
+        sku_rows = inventory_cur.fetchall()
+        sku_dict = {}
+        # for row in sku_rows:
+        #     if row[1] in sku_dict:
+        #         sku_dict[row[1]] = sku_dict[row[1]] + ',' + row[0]
+        #     else:
+        #         sku_dict[row[1]] = row[0]
 
-    chart_data = generate_product_order_graph(product_id)
-    chart_data_return = generate_product_return_graph(product_id)
-    chart_data_line_return = geneate_product_return_line_graph(product_id)
+        sku_dict = {}
+        for row in sku_rows:
+            if row[1] in sku_dict:
+                sku_dict[row[1]]['skus'].append(row[0])
+                sku_dict[row[1]]['platform_ids'].append(row[2])
+            else:
+                sku_dict[row[1]] = {
+                    'skus': [row[0]],
+                    'platform_ids': [row[2]]
+                }
 
-    # print(chart_data_line_return)
+        # Connect to product_report database and retrieve all data for the product_id
+        # prod_conn = sqlite3.connect(product_report_db_path)
+        # prod_c = product_conn.cursor()
+        product_cur.execute("SELECT * FROM product_details WHERE ProductID=?", (product_id,))
+        row = product_cur.fetchone()
 
-    # print(chart_data_return)
+        product_details = {
+            'id': row[0],
+            'Title': row[1],
+            'SubTitle': row[2],
+            'description': row[3],
+            'features': row[4], #row[4].split(',')
+            'dimensions': row[5],
+            'skus': sku_dict,
+            'image_url': row[6]
+        }
 
-    # Close database connections
-    inv_conn.close()
-    prod_conn.close()
+        chart_data = generate_product_order_graph(product_id)
+        chart_data_return = generate_product_return_graph(product_id)
+        chart_data_line_return = geneate_product_return_line_graph(product_id)
 
-    return render_template('/productSite/product.html', product=product_details, chart_data=[chart_data, chart_data_return, chart_data_line_return])
+        # print(chart_data_line_return)
+
+        # print(chart_data_return)
+
+        # Close database connections
+        # inv_conn.close()
+        # prod_conn.close()
+
+        return render_template('/productSite/product.html', product=product_details, chart_data=[chart_data, chart_data_return, chart_data_line_return])

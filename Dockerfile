@@ -2,10 +2,15 @@
 FROM python:3.9-slim-buster
 # Set the working directory in the container
 WORKDIR /app
+
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 # Copy the requirements file to the container
 COPY requirements.txt .
 # Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 # Copy the application code to the container
 COPY . .
 # set the environment variable for Flask

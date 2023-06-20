@@ -1,0 +1,4 @@
+2023-06-19 17:29:29,460 - INFO - logger - Error while showing inventory invalid literal for int() with base 10: 'NF' [views.py:1079 - show_update_inventory_show]
+2023-06-19 17:36:02,997 - INFO - logger - Updating Inventory for corresponding platforms: {'A': '1', 'F': '-15', 'M': '0', 'SD': '0', 'AJ': '0', 'JM': '0', 'NK': '', 'TQ': ''} [views.py:1105 - UpdateInventory]
+2023-06-19 17:36:03,010 - INFO - logger - Inventory Updated Successfully for corresponding platforms [views.py:1142 - UpdateInventory]
+2023-06-20 01:39:43,008 - INFO - logger - Error while showing inventory [Errno 13] Permission denied: 'f_pivot_the_df_to_show_on_html.csv' [views.py:1105 - show_update_inventory_show]

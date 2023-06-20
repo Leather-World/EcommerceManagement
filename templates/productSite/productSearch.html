@@ -4,7 +4,7 @@
 {% block content %}
 
 <style>
-    th {
+    th, thead{
         background-color: #f2f2f2;
         position: sticky;
         top: 0;
@@ -37,24 +37,25 @@
 
 <div class="container pt-5">
     <div class="row">
-        <div class="col-4">
+        <div class="col-12 col-md-4">
             <h2>Search Product</h2>
         </div>
-        <div class="col-4 offset-4">
+        <div class="col-12 col-md-4 offset-md-4 mt-3 mt-md-0">
             <input type="text" id="myInput" class="form-control" onkeyup="filterTable()" placeholder="Search...">
         </div>
     </div>
 
     <hr>
 
-    <div class="row table-container">
-        <table id="Products">
+    <div class="table-responsive table-container">
+        <table id="Products" class="table">
             <thead class="sticky-header">
                 <tr>
                     <th>ProductID</th>
                     <th>Image</th>
                     <th>SubTitle</th>
                     <th>A</th>
+                    <th>A_LG</th>
                     <th>F</th>
                     <th>M</th>
                     <th>SD</th>
@@ -71,6 +72,7 @@
                     <td><img src="{{ row['ImgURL'] }}" alt="{{ row['SubTitle'] }}"></td>
                     <td>{{ row['SubTitle'] }}</td>
                     <td>{{ row['A'] }}</td>
+                    <td>{{ row['A_LG'] }}</td>
                     <td>{{ row['F'] }}</td>
                     <td>{{ row['M'] }}</td>
                     <td>{{ row['SD'] }}</td>

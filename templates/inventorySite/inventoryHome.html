@@ -198,7 +198,7 @@
 
     <div class="row">
         {% for order_date, values in one_week_order_summary_dict.items() %}
-        <div class="col-md-4">
+        <div class="col-lg-4 col-md-4">
             <div class="card">
                 <div class="card-header">
                     <h4>{{ order_date }}</h4>
@@ -329,7 +329,7 @@ thead {
             <div class="container pt-2">
                 <div class="row justify-content-end">
                     <div class="col-auto">
-                        <button class="btn btn-primary" id="read_latest_invt_btn">Read Latest Inventory</button>
+                        <button class="btn btn-primary" id="read_latest_invt_btn">Read Latest Product Details</button>
                     </div>
                     <!-- <div class="col-auto">
                         <button class="btn btn-dark">Read Latest Inventory</button>
@@ -374,6 +374,7 @@ thead {
                             <th>ProductID</th>
                             <th>SubTitle</th>
                             <th>A</th>
+                            <th>A_LG</th>
                             <th>F</th>
                             <th>M</th>
                             <th>SD</th>
@@ -395,6 +396,7 @@ thead {
                             <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
                             <td>{{ row.SubTitle }}</td>
                             <td>{{ row.A }}</td>
+                            <td>{{ row.A_LG }}</td>
                             <td>{{ row.F }}</td>
                             <td>{{ row.M }}</td>
                             <td>{{ row.SD }}</td>
@@ -414,23 +416,82 @@ thead {
                 </table>
 
                 <script>
+                    function compareInventory() {
+                        var table = document.getElementById("table1");
+                        var rows = table.getElementsByTagName("tr");
+                
+                        for (var i = 1; i < rows.length; i++) { // Start from index 1 to skip the header row
+                            var row = rows[i];
+                            var tInventory = parseInt(row.cells[11].innerText);
+                            var benchmark = parseInt(row.cells[12].innerText);
+                            var circle = document.createElement("div");
+                
+                            if (tInventory < benchmark - 20 ) {
+                                circle.className = "red-circle";
+                            } else if (tInventory > benchmark + 20) {
+                                circle.className = "green-circle";
+                            } else if (Math.abs(tInventory - benchmark) <= 20) {
+                                circle.className = "orange-circle";
+                            }
 
-function sortTableTotalInventory() {
-  var table = document.getElementById("table1");
-  var tbody = table.getElementsByTagName("tbody")[0];
-  var rows = tbody.getElementsByTagName("tr");
-  var sortedRows = Array.from(rows);
+                            // Set the positioning style for the circle
+                            circle.style.marginLeft = "-20px";
+                            circle.style.float = "right";
+                
+                            row.cells[11].appendChild(circle);
+                        }
+                    }
+                
+                    // Call the function after the table is loaded
+                    window.onload = function() {
+                        compareInventory();
+                    };
+                </script>
 
-  sortedRows.sort(function (a, b) {
-    var aValue = parseInt(a.cells[10].textContent);
-    var bValue = parseInt(b.cells[10].textContent);
-    return aValue - bValue;
-  });
+                <style>
+                    .red-circle {
+                        display: inline-block;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background-color: rgb(255, 0, 0);
+                    }
 
-  for (var i = 0; i < sortedRows.length; i++) {
-    tbody.appendChild(sortedRows[i]);
-  }
-}
+                    .green-circle {
+                        display: inline-block;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background-color: green;
+                    }
+
+                    .orange-circle {
+                        display: inline-block;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        background-color: rgb(255, 255, 0);
+                    }
+                </style>
+
+                <script>
+
+                    function sortTableTotalInventory() {
+                    var table = document.getElementById("table1");
+                    var tbody = table.getElementsByTagName("tbody")[0];
+                    var rows = tbody.getElementsByTagName("tr");
+                    var sortedRows = Array.from(rows);
+
+                    sortedRows.sort(function (a, b) {
+                        var aValue = parseInt(a.cells[10].textContent);
+                        var bValue = parseInt(b.cells[10].textContent);
+                        return aValue - bValue;
+                    });
+
+                    for (var i = 0; i < sortedRows.length; i++) {
+                        tbody.appendChild(sortedRows[i]);
+                    }
+                    }
 
                 </script>
 
@@ -443,6 +504,7 @@ function sortTableTotalInventory() {
                             <th>Product ID</th>
                             <th>Subtitle</th>
                             <th>A</th>
+                            <th>A_LG</th>
                             <th>F</th>
                             <th>M</th>
                             <th>SD</th>
@@ -458,10 +520,11 @@ function sortTableTotalInventory() {
                     </thead>
                     <tbody>
                         {% for row in rows %}
-                        {% if row['Total'] < row.Benchmark %} <tr>
+                        {% if row.TInventory < row.Benchmark - 20 %} <tr>
                             <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
                             <td>{{ row.SubTitle }}</td>
                             <td>{{ row.A }}</td>
+                            <td>{{ row.A_LG }}</td>
                             <td>{{ row.F }}</td>
                             <td>{{ row.M }}</td>
                             <td>{{ row.SD }}</td>
@@ -488,6 +551,7 @@ function sortTableTotalInventory() {
                             <th>Product ID</th>
                             <th>Subtitle</th>
                             <th>A</th>
+                            <th>A_LG</th>
                             <th>F</th>
                             <th>M</th>
                             <th>SD</th>
@@ -503,10 +567,11 @@ function sortTableTotalInventory() {
                     </thead>
                     <tbody>
                         {% for row in rows %}
-                        {% if row['Total'] >= row.Benchmark -20 and row['Total'] <= row.Benchmark + 20 %} <tr>
+                        {% if row.TInventory >= row.Benchmark -20 and row.TInventory <= row.Benchmark + 20 %} <tr>
                             <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
                             <td>{{ row.SubTitle }}</td>
                             <td>{{ row.A }}</td>
+                            <td>{{ row.A_LG }}</td>
                             <td>{{ row.F }}</td>
                             <td>{{ row.M }}</td>
                             <td>{{ row.SD }}</td>
@@ -533,6 +598,7 @@ function sortTableTotalInventory() {
                             <th>Product ID</th>
                             <th>Subtitle</th>
                             <th>A</th>
+                            <th>A_LG</th>
                             <th>F</th>
                             <th>M</th>
                             <th>SD</th>
@@ -548,11 +614,12 @@ function sortTableTotalInventory() {
                     </thead>
                     <tbody>
                         {% for row in rows %}
-                        {% if row['Total'] > row.Benchmark %}
+                        {% if row.TInventory > row.Benchmark + 20 %}
                         <tr>
                             <td><a href="/product/{{ row.ProductID }}" target="_blank">{{ row.ProductID }}</a></td>
                             <td>{{ row.SubTitle }}</td>
                             <td>{{ row.A }}</td>
+                            <td>{{ row.A_LG }}</td>
                             <td>{{ row.F }}</td>
                             <td>{{ row.M }}</td>
                             <td>{{ row.SD }}</td>
@@ -570,6 +637,7 @@ function sortTableTotalInventory() {
                         {% endfor %}
                     </tbody>
                 </table>
+  
 
 
 
@@ -604,7 +672,7 @@ function sortTableTotalInventory() {
                         var cells = row.getElementsByTagName("td");
 
                         // loop through the cells and replace the text with an input field
-                        for (var i = 2; i <= 11; i++) { // only loop through the A, F, M columns
+                        for (var i = 2; i <= 12; i++) { // only loop through the A, F, M columns
                             var cell = cells[i];
                             var value = cell.innerText;
                             cell.innerHTML = "<input type='number' value='" + value + "' style='width: 50px;' />";
@@ -625,19 +693,21 @@ function sortTableTotalInventory() {
 
                         // get the new values from the input fields
                         var a = cells[2].getElementsByTagName("input")[0].value;
-                        var f = cells[3].getElementsByTagName("input")[0].value;
-                        var m = cells[4].getElementsByTagName("input")[0].value;
-                        var sd = cells[5].getElementsByTagName("input")[0].value;
-                        var aj = cells[6].getElementsByTagName("input")[0].value;
-                        var tq = cells[7].getElementsByTagName("input")[0].value;
-                        var jm = cells[8].getElementsByTagName("input")[0].value;
-                        var nk = cells[9].getElementsByTagName("input")[0].value;
-                        var inventory = cells[10].getElementsByTagName("input")[0].value;
-                        var benchmark = cells[11].getElementsByTagName("input")[0].value; // added this line
+                        var a_lg = cells[3].getElementsByTagName("input")[0].value;
+                        var f = cells[4].getElementsByTagName("input")[0].value;
+                        var m = cells[5].getElementsByTagName("input")[0].value;
+                        var sd = cells[6].getElementsByTagName("input")[0].value;
+                        var aj = cells[7].getElementsByTagName("input")[0].value;
+                        var tq = cells[8].getElementsByTagName("input")[0].value;
+                        var jm = cells[9].getElementsByTagName("input")[0].value;
+                        var nk = cells[10].getElementsByTagName("input")[0].value;
+                        var inventory = cells[11].getElementsByTagName("input")[0].value;
+                        var benchmark = cells[12].getElementsByTagName("input")[0].value; // added this line
 
                         var updated_data = {
                             ProductId: product_id,
                             A: a,
+                            A_LG: a_lg,
                             F: f,
                             M: m,
                             SD: sd,
@@ -878,6 +948,14 @@ function sortTableTotalInventory() {
                                     </div>
 
                                     <div class="input-group row">
+                                        <label for="u_Amazon_lg" class="col col-form-label">Amazon LG:</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" name="u_Amazon_lg" class="form-control" value="0" onchange="updateTotal()"
+                                                id="u_Amazon_lg">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row">
                                         <label for="u_Flipkart"
                                             class="col col-form-label">Flipkart:</label>
                                         <div class="col-sm-6">
@@ -975,6 +1053,7 @@ function sortTableTotalInventory() {
                         function updateTotal() {
                             // Update the Total Quantity
                             var A = parseInt(document.getElementById("u_Amazon").value);
+                            var A_LG = parseInt(document.getElementById("u_Amazon_lg").value);
                             var F = parseInt(document.getElementById("u_Flipkart").value);
                             var M = parseInt(document.getElementById("u_Myntra").value);
                             var SD = parseInt(document.getElementById("u_Snapdeal").value);
@@ -983,9 +1062,7 @@ function sortTableTotalInventory() {
                             var NK = parseInt(document.getElementById("u_Nykaa").value);
                             var TQ = parseInt(document.getElementById("u_TatacliQ").value);
 
-                            console.log(A, F, M, SD, AJ)
-                            var total = A + F + M + SD + AJ + JM + NK + TQ;
-                            console.log(total)
+                            var total = A + A_LG + F + M + SD + AJ + JM + NK + TQ;
                             document.getElementById("add_qty").value = total;
                         }
                         

@@ -31,6 +31,25 @@ def format_order_reports(result):
             # logger.info('Amazon OR: %s' , amazon_order_report.head(2))
             order_report.append(amazon_order_report)
 
+        if platform == 'amazon_lg_dor' and url != '':
+            amazon_lg_order_report = pd.read_csv(url)
+            
+            amazon_lg_order_report = amazon_lg_order_report[['amazon-order-id','purchase-date','sku','quantity','order-status','asin']]
+            amazon_lg_order_report.rename(columns = {'amazon-order-id':'order_id','purchase-date':'order_date','asin':'platformID'}, inplace = True)
+            amazon_lg_order_report = amazon_lg_order_report[~amazon_lg_order_report['order-status'].isin(['Cancelled'])]
+            amazon_lg_order_report.drop(['order-status'], axis=1,  inplace=True)
+            # convert the purchase-date column to a datetime object
+            amazon_lg_order_report['order_date'] = pd.to_datetime(amazon_lg_order_report['order_date'])
+            # extract the date from the datetime object
+            amazon_lg_order_report['order_date'] = amazon_lg_order_report['order_date'].dt.strftime('%Y-%m-%d')
+
+            # amazon_lg_order_report['order_date'] = amazon_lg_order_report['order_date'].dt.date
+            amazon_lg_order_report['platform'] = 'A_LG'
+
+            print(amazon_lg_order_report.head(5))
+
+            order_report.append(amazon_lg_order_report)
+
         if platform == 'flipkart_dor' and url != '':
             flipkart_order_report = pd.read_csv(url)
             flipkart_order_report = flipkart_order_report[['order_id','order_date','sku','quantity','order_item_status','fsn']]
@@ -158,24 +177,26 @@ def format_order_reports(result):
 
     final_order_report = pd.concat(order_report, keys=['order_id', 'order_date', 'sku', 'quantity', 'platformID', 'platform'])
     final_order_report = final_order_report.sort_values(by='order_date')
-    final_order_report.to_csv('final_order_report_may_june_2.csv', index=False)
+    final_order_report.to_csv('final_order_report_amazon_lg_may_june.csv', index=False)
     
 
     return final_order_report   
     
 
 
-report_path = {'amazon_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/amazon.csv',
- 'flipkart_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/flipkart.csv',
- 'ajio_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/ajio.csv',
- 'snapdeal_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/snapdeal.csv',
- 'myntra_dor':'D:\LW\LWEcommerceManagement\order_reports\May-June\myntra.csv',
- 'tataq_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/tata1.csv'
+report_path = {
+# 'amazon_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/amazon.csv',
+               'amazon_lg_dor':'D:/LW/LWEcommerceManagement/order_reports/amazon_lg_may_june.csv',
+#  'flipkart_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/flipkart.csv',
+#  'ajio_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/ajio.csv',
+#  'snapdeal_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/snapdeal.csv',
+#  'myntra_dor':'D:\LW\LWEcommerceManagement\order_reports\May-June\myntra.csv',
+#  'tataq_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/tata1.csv'
 }
 
 def insert_dor():
     # read the order report CSV file
-    order_report = pd.read_csv("final_order_report_may_june_2.csv")
+    order_report = pd.read_csv("final_order_report_amazon_lg_may_june.csv")
     order_report.drop_duplicates(keep='first', inplace=True)
 
     # define the name of the databases and tables
@@ -279,5 +300,5 @@ def insert_dor():
     order_conn.close()
     inventory_conn.close()
 
-format_order_reports(report_path)
+# format_order_reports(report_path)
 insert_dor()
