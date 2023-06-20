@@ -1,0 +1,11 @@
+docker build -t lw .
+
+docker run -p 5000:5000 lw
+
+git status
+
+git add .
+
+git commit -m "changes"
+
+git push Leather-World master

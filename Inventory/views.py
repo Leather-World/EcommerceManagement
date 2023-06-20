@@ -1,4 +1,4 @@
-from flask import request, render_template, session ,jsonify, redirect, url_for
+from flask import request, render_template, session ,jsonify, redirect, url_for, send_file
 import os
 import pandas as pd
 import sqlite3
@@ -1069,7 +1069,7 @@ def show_update_inventory_show():
         pivot = pd.pivot_table(merged, index=['ProductID', 'SubTitle', 'Benchmark', 'TInventory'],
                             columns='Platform', values='Inventory', fill_value='NA')
                 
-        pivot.to_csv('f_pivot_the_df_to_show_on_html.csv', index=False)
+        # pivot.to_csv('f_pivot_the_df_to_show_on_html.csv', index=False)
 
 
         pivot = pivot.applymap(lambda x: int(x) if x != 'NA' else x)
@@ -1080,7 +1080,7 @@ def show_update_inventory_show():
         # Remove the first duplicate occurrence of each ProductID
         # output = output[~output.duplicated(subset=['ProductID'], keep='last')]
 
-        output.to_csv('pivot_the_df_to_show_on_html.csv', index=False)
+        # output.to_csv('pivot_the_df_to_show_on_html.csv', index=False)
 
 
         df_days_left = estimate_stock_over()
@@ -1394,4 +1394,24 @@ def one_week_order_summary():
 
     return sorted_result
 
-    
+
+def DownloadDatabase():
+    import zipfile
+
+    directory = os.path.join(os.getcwd(), 'Database')  # Specify the directory containing the files to be zipped
+
+    # Create a temporary zip file
+    zip_path = 'Database.zip'
+
+    print(zip_path)
+
+    # Create a new zip file
+    with zipfile.ZipFile(zip_path, 'w') as zipf:
+        # Iterate through all files in the directory and add them to the zip file
+        for root, _, files in os.walk(directory):
+            for file in files:
+                file_path = os.path.join(root, file)
+                zipf.write(file_path, os.path.relpath(file_path, directory))
+
+    # Send the zip file as an attachment for the user to download
+    return send_file(zip_path, as_attachment=True)

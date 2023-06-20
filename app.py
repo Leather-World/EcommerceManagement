@@ -29,15 +29,13 @@ app.add_url_rule('/inventory/InventoryChangeTab', view_func = inventoryUrl.Inven
 app.add_url_rule('/inventory/UpdateInventory', view_func = inventoryUrl.UpdateInventory, methods=['GET', 'POST'])
 app.add_url_rule('/inventory/AddInventoryM', view_func = inventoryUrl.AddInventoryM, methods=['GET', 'POST'])
 app.add_url_rule('/inventory/InvtUpdateApprove', view_func = inventoryUrl.InvtUpdateApprove, methods=['GET', 'POST'])
-
-
+app.add_url_rule('/inventory/DownloadDatabase', view_func = inventoryUrl.DownloadDatabase, methods=['POST'])
 
 
 app.add_url_rule('/product', view_func = productsUrl.ProductHome, methods=['GET', 'POST'])
 app.add_url_rule('/productdb', view_func = productsUrl.ProductDB, methods=['GET', 'POST'])
 app.add_url_rule('/productSearch', view_func = productsUrl.ProductSearch, methods=['GET', 'POST'])
 app.add_url_rule('/product/<product_id>', view_func = productsUrl.ProductPage, methods=['GET', 'POST'])
-
 app.add_url_rule('/product/Generate_productdb_OR_Polar', view_func = productsUrl.Generate_productdb_OR_Polar, methods=['GET', 'POST'])
 
 
