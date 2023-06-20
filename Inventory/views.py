@@ -1395,6 +1395,12 @@ def one_week_order_summary():
     return sorted_result
 
 
+def Downloadlogs():
+    file_path = 'app.log'  # Specify the path to the file you want to download
+
+    # Send the file as an attachment for the user to download
+    return send_file(file_path, as_attachment=True)
+
 def DownloadDatabase():
     import zipfile
 
