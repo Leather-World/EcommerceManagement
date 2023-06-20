@@ -1,4 +1,5 @@
 from flask import request, render_template, session ,jsonify, redirect, url_for, send_file
+from werkzeug.utils import secure_filename
 import os
 import pandas as pd
 import sqlite3
@@ -64,8 +65,8 @@ def format_order_reports(result):
 
 
         try:
-            if platform == 'amazon_dor' and url[0] != '':
-                amazon_order_report = pd.read_csv(url[0])
+            if platform == 'amazon_dor' and url != '':
+                amazon_order_report = pd.read_csv(url)
                 amazon_order_report = amazon_order_report[['amazon-order-id','purchase-date','sku','quantity','order-status','asin']]
                 amazon_order_report.rename(columns = {'amazon-order-id':'order_id','purchase-date':'order_date','asin':'platformID'}, inplace = True)
                 amazon_order_report = amazon_order_report[~amazon_order_report['order-status'].isin(['Cancelled'])]
@@ -81,8 +82,8 @@ def format_order_reports(result):
                 logger.info('Amazon OR: %s' , amazon_order_report.head(2))
                 order_report.append(amazon_order_report)
             
-            if platform == 'amazon_lg_dor' and url[0] != '':
-                amazon_lg_order_report = pd.read_csv(url[0])
+            if platform == 'amazon_lg_dor' and url != '':
+                amazon_lg_order_report = pd.read_csv(url)
                 amazon_lg_order_report = amazon_lg_order_report[['amazon-order-id','purchase-date','sku','quantity','order-status','asin']]
                 amazon_lg_order_report.rename(columns = {'amazon-order-id':'order_id','purchase-date':'order_date','asin':'platformID'}, inplace = True)
                 amazon_lg_order_report = amazon_lg_order_report[~amazon_lg_order_report['order-status'].isin(['Cancelled'])]
@@ -99,8 +100,8 @@ def format_order_reports(result):
                 order_report.append(amazon_lg_order_report)
 
 
-            if platform == 'flipkart_dor' and url[0] != '':
-                flipkart_order_report = pd.read_csv(url[0])
+            if platform == 'flipkart_dor' and url != '':
+                flipkart_order_report = pd.read_csv(url)
                 flipkart_order_report = flipkart_order_report[['order_id','order_date','sku','quantity','order_item_status','fsn']]
                 flipkart_order_report.rename(columns = {'fsn':'platformID'}, inplace = True)
                 flipkart_order_report['order_item_status'].unique()
@@ -128,8 +129,8 @@ def format_order_reports(result):
 
                 order_report.append(flipkart_order_report)
 
-            if platform == 'myntra_dor' and url[0] != '':
-                myntra_order_report = pd.read_csv(url[0])
+            if platform == 'myntra_dor' and url != '':
+                myntra_order_report = pd.read_csv(url)
                 myntra_order_report = myntra_order_report[['Order Release Id','Created On','Vendor Article Number','Order Status','Style ID']]
                 myntra_order_report.rename(columns = {'Order Release Id':'order_id','Created On':'order_date', 
                                                     'Vendor Article Number':'sku','Style ID':'platformID'}, inplace = True)
@@ -152,8 +153,8 @@ def format_order_reports(result):
                 order_report.append(myntra_order_report)
 
             
-            if platform == 'ajio_dor' and url[0] != '':
-                ajio_order_report = pd.read_csv(url[0])
+            if platform == 'ajio_dor' and url != '':
+                ajio_order_report = pd.read_csv(url)
                 ajio_order_report = ajio_order_report[['Cust Order No','Cust Order Date','Seller SKU','Order Qty','Status','JioCode']]
                 ajio_order_report.rename(columns = {'Cust Order No':'order_id', 'Cust Order Date':'order_date', 
                                                     'Seller SKU':'sku', 'Order Qty':'quantity', 'JioCode':'platformID'}, inplace = True)
@@ -178,8 +179,8 @@ def format_order_reports(result):
                 order_report.append(ajio_order_report)
 
 
-            if platform == 'snapdeal_dor' and url[0] != '':
-                snapdeal_order_report = pd.read_csv(url[0])
+            if platform == 'snapdeal_dor' and url != '':
+                snapdeal_order_report = pd.read_csv(url)
                 snapdeal_order_report = snapdeal_order_report[['ORDER CODE','ORDER DATE','SKU CODE','QTY','CURRENT ORDER STATE','SUPC']]
 
                 snapdeal_order_report.rename(columns = {'ORDER CODE':'order_id', 'ORDER DATE':'order_date', 
@@ -199,8 +200,8 @@ def format_order_reports(result):
                 logger.info('Snapdeal OR: %s' , snapdeal_order_report.head(2))
                 order_report.append(snapdeal_order_report)
 
-            if platform == 'tataq_dor' and url[0] != '':
-                tataq_order_report = pd.read_csv(url[0])
+            if platform == 'tataq_dor' and url != '':
+                tataq_order_report = pd.read_csv(url)
 
                 tataq_order_report = tataq_order_report[['OrderId','OrderDate','SKU', 'OrderStatus ']]
 
@@ -228,9 +229,9 @@ def format_order_reports(result):
                 order_report.append(tataq_order_report)
 
             
-            if platform == 'NK_NKFSN_dor' and url[0] != '':
+            if platform == 'NK_NKFSN_dor' and url != '':
                 print(platform)
-                NK_NKFSN_order_report = pd.read_csv(url[0])
+                NK_NKFSN_order_report = pd.read_csv(url)
                 # NK_NKFSN_order_report = NK_NKFSN_order_report[['or','Order Date','SKU','Order Qty', 'platforms']]
                 # NK_NKFSN_order_report.rename(columns = {'Order No':'order_id','Order Date':'order_date','SKU':'sku','Order Qty':'quantity'}, inplace = True)
 
@@ -959,37 +960,48 @@ def update_inventory():
         return 'error',f'Error while updating Inventory because {e}'
 
 
+
 def DailyOrderReport():
 
-    if request.method == "POST":
-        
-        result = request.form.to_dict(flat=False)
+    order_report_dict = {}  # Dictionary to store the name and file path
 
+    if not request.files or len(request.files) == 0:
+        return jsonify({'status': 'error', 'message': 'No files were uploaded.'})
+    
+    for name, file in request.files.items():
+        if file:
+            # Save the file to the "order_reports" directory
+            filename = secure_filename(file.filename)
+            file_path = os.path.join('order_reports', filename)
+            file.save(file_path)
+            
+            # Add the name and file path to the dictionary
+            order_report_dict[name] = file_path
+    
+    final_order_report, msg = format_order_reports(order_report_dict)
 
-        logger.info('Daily Order Report FilePath Dictionary: %s', result)
-
-        final_order_report, msg = format_order_reports(result)
-
-        if msg == 'error':
+    if msg == 'error':
             msg = 'Please provide correct path of order report of atleast one platform'
             return jsonify({'status': 'altert', 'message': msg})
         
-        elif msg == 'ok':
-            msg, msg_status = insert_dor(final_order_report)
+    elif msg == 'ok':
+        msg, msg_status = insert_dor(final_order_report)
 
-            if msg_status == 'success':
+        if msg_status == 'success':
 
-                msg_st, msg = update_inventory()
+            msg_st, msg = update_inventory()
 
-                if msg_st == 'success':
+            if msg_st == 'success':
 
-                    return jsonify({'status': 'success', 'message': msg})
+                return jsonify({'status': 'success', 'message': msg})
 
-                else:
-                    return jsonify({'status': 'error', 'message': msg})
-               
-            
+            else:
+                return jsonify({'status': 'error', 'message': msg})
+    
     return render_template('/inventorySite/inventoryHome.html')
+
+
+
 
 
 def estimate_stock_over():

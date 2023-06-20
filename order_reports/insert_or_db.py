@@ -177,7 +177,7 @@ def format_order_reports(result):
 
     final_order_report = pd.concat(order_report, keys=['order_id', 'order_date', 'sku', 'quantity', 'platformID', 'platform'])
     final_order_report = final_order_report.sort_values(by='order_date')
-    final_order_report.to_csv('final_order_report_amazon_lg_may_june.csv', index=False)
+    final_order_report.to_csv('final_order_report_flipkart.csv', index=False)
     
 
     return final_order_report   
@@ -186,8 +186,8 @@ def format_order_reports(result):
 
 report_path = {
 # 'amazon_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/amazon.csv',
-               'amazon_lg_dor':'D:/LW/LWEcommerceManagement/order_reports/amazon_lg_may_june.csv',
-#  'flipkart_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/flipkart.csv',
+            #    'amazon_lg_dor':'D:/LW/LWEcommerceManagement/order_reports/amazon_lg_may_june.csv',
+ 'flipkart_dor':'D:/LW/LWEcommerceManagement/order_reports/flipkart.csv',
 #  'ajio_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/ajio.csv',
 #  'snapdeal_dor':'D:/LW/LWEcommerceManagement/order_reports/May-June/snapdeal.csv',
 #  'myntra_dor':'D:\LW\LWEcommerceManagement\order_reports\May-June\myntra.csv',
@@ -196,7 +196,7 @@ report_path = {
 
 def insert_dor():
     # read the order report CSV file
-    order_report = pd.read_csv("final_order_report_amazon_lg_may_june.csv")
+    order_report = pd.read_csv("final_order_report_flipkart.csv")
     order_report.drop_duplicates(keep='first', inplace=True)
 
     # define the name of the databases and tables

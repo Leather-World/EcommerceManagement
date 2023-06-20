@@ -2,3 +2,210 @@
 2023-06-19 17:36:02,997 - INFO - logger - Updating Inventory for corresponding platforms: {'A': '1', 'F': '-15', 'M': '0', 'SD': '0', 'AJ': '0', 'JM': '0', 'NK': '', 'TQ': ''} [views.py:1105 - UpdateInventory]
 2023-06-19 17:36:03,010 - INFO - logger - Inventory Updated Successfully for corresponding platforms [views.py:1142 - UpdateInventory]
 2023-06-20 01:39:43,008 - INFO - logger - Error while showing inventory [Errno 13] Permission denied: 'f_pivot_the_df_to_show_on_html.csv' [views.py:1105 - show_update_inventory_show]
+2023-06-20 17:23:30,216 - INFO - logger - Daily Order Report FilePath Dictionary: {'amazon_dor': [''], 'flipkart_dor': [''], 'myntra_dor': [''], 'snapdeal_dor': [''], 'ajio_dor': ['D:\\LW\\LWEcommerceManagement\\order_reports\\June\\19-20\\ajio.csv'], 'tataq_dor': [''], 'NK_NKFSN_dor': ['']} [views.py:969 - DailyOrderReport]
+2023-06-20 17:23:30,217 - INFO - logger - Formating platform: amazon_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:23:30,217 - INFO - logger - Formating platform: flipkart_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:23:30,217 - INFO - logger - Formating platform: myntra_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:23:30,218 - INFO - logger - Formating platform: snapdeal_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:23:30,218 - INFO - logger - Formating platform: ajio_dor with url: ['D:\\LW\\LWEcommerceManagement\\order_reports\\June\\19-20\\ajio.csv'] [views.py:63 - format_order_reports]
+2023-06-20 17:23:30,243 - INFO - logger - Ajio OR:         order_id  order_date            sku  quantity    platformID platform
+14  FN3872409892  2023-06-19  FLYDB20214001         1  462491775001       AJ
+27  FN9732409923  2023-06-19    LWOB2021004         1  462590633002       AJ [views.py:175 - format_order_reports]
+2023-06-20 17:23:30,255 - INFO - logger - Formating platform: tataq_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:23:30,255 - INFO - logger - Formating platform: NK_NKFSN_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:23:30,255 - INFO - logger - Adding ProductID to each order [views.py:263 - format_order_reports]
+2023-06-20 17:23:30,267 - INFO - logger - ProductID Added [views.py:300 - format_order_reports]
+2023-06-20 17:23:30,270 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:309 - format_order_reports]
+2023-06-20 17:23:30,272 - INFO - logger - Order Report:         order_id  order_date            sku  quantity    platformID platform productid
+14  FN3872409892  2023-06-19  FLYDB20214001         1  462491775001       AJ   FLYDB_3
+13  FN7639303086  2023-06-19   LWSB20213016         1  462278005001       AJ    LWSB_4
+8   FN2578300415  2023-06-19   LWOB16171071         1  462314479001       AJ      None
+9   FN5552402640  2023-06-19   LWWC16176105         1  462462233001       AJ   LWWC_13
+11  FN7872408652  2023-06-19   LWWC16176140         1  462462246001       AJ    LWWC_9
+12  FN0212402863  2023-06-19       LWHK2207         1  465631157001       AJ    LWHK_7
+28  FN7672403048  2023-06-19   LWWC16176106         1  462469875001       AJ   LWWC_26
+15  FN9672405987  2023-06-19    FLYSB202105         1  462507052001       AJ   FLYSB_7
+17  FN9772403206  2023-06-19   LWSB20213015         1  462218089001       AJ    LWSB_3
+29  FL0370697802  2023-06-19   LWWC16176104         1  462462229001       AJ   LWWC_15 [views.py:324 - insert_dor]
+2023-06-20 17:23:30,289 - INFO - logger - Order Report has been recorded [views.py:423 - insert_dor]
+2023-06-20 17:23:30,911 - INFO - logger - Inventory has been Updated [views.py:939 - update_inventory]
+2023-06-20 17:23:30,955 - INFO - logger - Total Inventory column has been updated [views.py:943 - update_inventory]
+2023-06-20 17:27:57,613 - INFO - logger - Daily Order Report FilePath Dictionary: {'amazon_dor': [''], 'flipkart_dor': [''], 'myntra_dor': [''], 'snapdeal_dor': [''], 'ajio_dor': ['D:\\LW\\LWEcommerceManagement\\order_reports\\June\\19-20\\ajio.csv'], 'tataq_dor': [''], 'NK_NKFSN_dor': ['']} [views.py:969 - DailyOrderReport]
+2023-06-20 17:27:57,613 - INFO - logger - Formating platform: amazon_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:27:57,613 - INFO - logger - Formating platform: flipkart_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:27:57,614 - INFO - logger - Formating platform: myntra_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:27:57,614 - INFO - logger - Formating platform: snapdeal_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:27:57,614 - INFO - logger - Formating platform: ajio_dor with url: ['D:\\LW\\LWEcommerceManagement\\order_reports\\June\\19-20\\ajio.csv'] [views.py:63 - format_order_reports]
+2023-06-20 17:27:57,630 - INFO - logger - Ajio OR:         order_id  order_date            sku  quantity    platformID platform
+14  FN3872409892  2023-06-19  FLYDB20214001         1  462491775001       AJ
+27  FN9732409923  2023-06-19    LWOB2021004         1  462590633002       AJ [views.py:175 - format_order_reports]
+2023-06-20 17:27:57,639 - INFO - logger - Formating platform: tataq_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:27:57,639 - INFO - logger - Formating platform: NK_NKFSN_dor with url: [''] [views.py:63 - format_order_reports]
+2023-06-20 17:27:57,639 - INFO - logger - Adding ProductID to each order [views.py:263 - format_order_reports]
+2023-06-20 17:27:57,647 - INFO - logger - ProductID Added [views.py:300 - format_order_reports]
+2023-06-20 17:27:57,652 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:309 - format_order_reports]
+2023-06-20 17:27:57,654 - INFO - logger - Order Report:         order_id  order_date            sku  quantity    platformID platform productid
+14  FN3872409892  2023-06-19  FLYDB20214001         1  462491775001       AJ   FLYDB_3
+13  FN7639303086  2023-06-19   LWSB20213016         1  462278005001       AJ    LWSB_4
+8   FN2578300415  2023-06-19   LWOB16171071         1  462314479001       AJ      None
+9   FN5552402640  2023-06-19   LWWC16176105         1  462462233001       AJ   LWWC_13
+11  FN7872408652  2023-06-19   LWWC16176140         1  462462246001       AJ    LWWC_9
+12  FN0212402863  2023-06-19       LWHK2207         1  465631157001       AJ    LWHK_7
+28  FN7672403048  2023-06-19   LWWC16176106         1  462469875001       AJ   LWWC_26
+15  FN9672405987  2023-06-19    FLYSB202105         1  462507052001       AJ   FLYSB_7
+17  FN9772403206  2023-06-19   LWSB20213015         1  462218089001       AJ    LWSB_3
+29  FL0370697802  2023-06-19   LWWC16176104         1  462462229001       AJ   LWWC_15 [views.py:324 - insert_dor]
+2023-06-20 17:27:57,670 - INFO - logger - Order Report has been recorded [views.py:423 - insert_dor]
+2023-06-20 17:27:57,716 - INFO - logger - Inventory has been Updated [views.py:939 - update_inventory]
+2023-06-20 17:27:57,772 - INFO - logger - Total Inventory column has been updated [views.py:943 - update_inventory]
+2023-06-20 18:09:59,868 - INFO - logger - Formating platform: amazon_dor with url: order_reports\amazon.csv [views.py:64 - format_order_reports]
+2023-06-20 18:09:59,870 - ERROR - logger - Error: [Errno 2] No such file or directory: 'o' [views.py:259 - format_order_reports]
+2023-06-20 18:11:21,824 - INFO - logger - Formating platform: amazon_dor with url: order_reports\amazon.csv [views.py:64 - format_order_reports]
+2023-06-20 18:11:21,852 - INFO - logger - Amazon OR:               order_id  order_date           sku  quantity  platformID platform
+0  408-0739714-2873153  2023-06-20  LWWC16176094         1  B0779BZV2M        A
+1  402-9301760-5778749  2023-06-20  LWWC16176094         1  B0779BZV2M        A [views.py:82 - format_order_reports]
+2023-06-20 18:11:21,859 - INFO - logger - Adding ProductID to each order [views.py:264 - format_order_reports]
+2023-06-20 18:11:21,896 - INFO - logger - ProductID Added [views.py:301 - format_order_reports]
+2023-06-20 18:11:21,897 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:310 - format_order_reports]
+2023-06-20 18:12:03,287 - INFO - logger - Formating platform: amazon_dor with url: order_reports\amazon.csv [views.py:64 - format_order_reports]
+2023-06-20 18:12:03,347 - INFO - logger - Amazon OR:               order_id  order_date           sku  quantity  platformID platform
+0  408-0739714-2873153  2023-06-20  LWWC16176094         1  B0779BZV2M        A
+1  402-9301760-5778749  2023-06-20  LWWC16176094         1  B0779BZV2M        A [views.py:85 - format_order_reports]
+2023-06-20 18:12:03,352 - INFO - logger - Adding ProductID to each order [views.py:267 - format_order_reports]
+2023-06-20 18:12:03,391 - INFO - logger - ProductID Added [views.py:304 - format_order_reports]
+2023-06-20 18:12:03,392 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:313 - format_order_reports]
+2023-06-20 18:12:37,517 - INFO - logger - Formating platform: amazon_dor with url: order_reports\amazon.csv [views.py:64 - format_order_reports]
+2023-06-20 18:12:37,544 - INFO - logger - Amazon OR:               order_id  order_date           sku  quantity  platformID platform
+0  408-0739714-2873153  2023-06-20  LWWC16176094         1  B0779BZV2M        A
+1  402-9301760-5778749  2023-06-20  LWWC16176094         1  B0779BZV2M        A [views.py:85 - format_order_reports]
+2023-06-20 18:12:37,550 - INFO - logger - Adding ProductID to each order [views.py:267 - format_order_reports]
+2023-06-20 18:12:37,588 - INFO - logger - ProductID Added [views.py:304 - format_order_reports]
+2023-06-20 18:12:37,589 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:313 - format_order_reports]
+2023-06-20 18:13:49,095 - INFO - logger - Formating platform: amazon_dor with url: order_reports\amazon.csv [views.py:64 - format_order_reports]
+2023-06-20 18:13:49,113 - INFO - logger - Amazon OR:               order_id  order_date           sku  quantity  platformID platform
+0  408-0739714-2873153  2023-06-20  LWWC16176094         1  B0779BZV2M        A
+1  402-9301760-5778749  2023-06-20  LWWC16176094         1  B0779BZV2M        A [views.py:82 - format_order_reports]
+2023-06-20 18:13:49,120 - INFO - logger - Adding ProductID to each order [views.py:264 - format_order_reports]
+2023-06-20 18:13:49,157 - INFO - logger - ProductID Added [views.py:301 - format_order_reports]
+2023-06-20 18:13:49,161 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:310 - format_order_reports]
+2023-06-20 18:29:24,718 - INFO - logger - Formating platform: amazon_dor with url: order_reports\amazon.csv [views.py:64 - format_order_reports]
+2023-06-20 18:29:24,737 - INFO - logger - Amazon OR:               order_id  order_date           sku  quantity  platformID platform
+0  408-0739714-2873153  2023-06-20  LWWC16176094         1  B0779BZV2M        A
+1  402-9301760-5778749  2023-06-20  LWWC16176094         1  B0779BZV2M        A [views.py:82 - format_order_reports]
+2023-06-20 18:29:24,745 - INFO - logger - Adding ProductID to each order [views.py:264 - format_order_reports]
+2023-06-20 18:29:24,780 - INFO - logger - ProductID Added [views.py:301 - format_order_reports]
+2023-06-20 18:29:24,785 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:310 - format_order_reports]
+2023-06-20 18:29:24,786 - INFO - logger - Order Report:                 order_id  order_date                  sku  quantity  platformID platform productid
+152  405-4255407-9010722  2023-06-18  PRIME-LWWC16176104B         1  B07PFV29ZM        A   LWWC_15
+148  402-4512744-1983507  2023-06-18  PRIME-LWWC16176104B         1  B07PFV29ZM        A   LWWC_15
+151  403-5575557-8926740  2023-06-18   PRIME-LWWC20216114         1  B07PGZWX1F        A   LWWC_16
+150  405-3957762-5761131  2023-06-18         LWWC16176140         1  B084MK46HJ        A    LWWC_9
+149  404-2455694-4103542  2023-06-18         LWWC16176140         1  B084MK46HJ        A    LWWC_9
+82   171-6259236-5657153  2023-06-19         LWWC16176094         1  B0779BZV2M        A   LWWC_10
+112  403-2600617-2634719  2023-06-19         LWWC16176140         1  B084MK46HJ        A    LWWC_9
+111  402-4506924-6285915  2023-06-19        LWSB16173010B         1  B07MW1H1GX        A    LWSB_2
+110  171-3113843-7217150  2023-06-19  PRIME-LWWC16176104B         1  B07PFV29ZM        A   LWWC_15
+109  403-5128885-2093926  2023-06-19         LWWC20216140         1  B084MK46HJ        A    LWWC_9 [views.py:325 - insert_dor]
+2023-06-20 18:29:24,818 - INFO - logger - Order Report has been recorded [views.py:424 - insert_dor]
+2023-06-20 18:29:25,494 - INFO - logger - Inventory has been Updated [views.py:940 - update_inventory]
+2023-06-20 18:29:25,535 - INFO - logger - Total Inventory column has been updated [views.py:944 - update_inventory]
+2023-06-20 18:35:23,021 - INFO - logger - Formating platform: flipkart_dor with url: order_reports\flipkart.csv [views.py:64 - format_order_reports]
+2023-06-20 18:35:23,021 - ERROR - logger - Error: [Errno 2] No such file or directory: 'o' [views.py:259 - format_order_reports]
+2023-06-20 18:37:03,445 - INFO - logger - Formating platform: flipkart_dor with url: order_reports\flipkart.csv [views.py:64 - format_order_reports]
+2023-06-20 18:37:03,479 - INFO - logger - Flipkart OR:                order_id  order_date             sku  quantity        platformID platform
+0  OD328401085512169100  2023-06-19    LWSB16173010         1  SLBFCXU4ZA97QTVB        F
+1  OD228401688507953000  2023-06-19  LWSB19203024SP         1  YGGGAH5B4RPGZXVY        F [views.py:127 - format_order_reports]
+2023-06-20 18:37:03,486 - INFO - logger - Formating platform: myntra_dor with url: order_reports\myntra.csv [views.py:64 - format_order_reports]
+2023-06-20 18:37:03,501 - INFO - logger - Myntra OR:      order_id  order_date            sku  quantity  platformID platform
+0  7457669177  2023-06-17  LWSB16173015B         1    11557748        M
+1  7457675207  2023-06-17       LWWC2102         1    14432302        M [views.py:151 - format_order_reports]
+2023-06-20 18:37:03,506 - INFO - logger - Adding ProductID to each order [views.py:264 - format_order_reports]
+2023-06-20 18:37:03,572 - INFO - logger - ProductID Added [views.py:301 - format_order_reports]
+2023-06-20 18:37:03,576 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:310 - format_order_reports]
+2023-06-20 18:37:03,580 - INFO - logger - Order Report:       order_id  order_date            sku  quantity platformID platform productid
+14  7457913577  2023-06-17   LWSB19203024         1   11207872        M    LWSB_6
+28  7458125703  2023-06-17    FLYSB202102         1   14070754        M   FLYSB_5
+29  7458244728  2023-06-17       LWGW2203         1   19274548        M      None
+30  7458276950  2023-06-17  LWWC16176117B         1    9716261        M   LWWC_21
+31  7458313398  2023-06-17   LWWC16176107         1    4700845        M   LWWC_25
+32  7458339813  2023-06-17   LWWC16176114         1    5965366        M   LWWC_16
+33  7458365983  2023-06-17       LWGW2203         1   19274548        M      None
+34  7458371295  2023-06-17       LWGW2204         1   19274510        M      None
+35  7458404635  2023-06-17  LWOB16171149B         1   11178890        M    LWOB_7
+36  7458409983  2023-06-17   LWWC20216001         1   14136006        M   LWWC_29 [views.py:325 - insert_dor]
+2023-06-20 18:37:03,629 - INFO - logger - Order Report has been recorded [views.py:424 - insert_dor]
+2023-06-20 18:37:04,892 - INFO - logger - Inventory has been Updated [views.py:940 - update_inventory]
+2023-06-20 18:37:04,935 - INFO - logger - Total Inventory column has been updated [views.py:944 - update_inventory]
+2023-06-20 18:41:32,889 - INFO - logger - Formating platform: snapdeal_dor with url: order_reports\snapdeal.csv [views.py:64 - format_order_reports]
+2023-06-20 18:41:32,905 - INFO - logger - Snapdeal OR:       order_id  order_date           sku  quantity    platformID platform
+0  49339607058  2023-06-19  LWSB19203016         1  SDL321052458       SD
+1  49340364309  2023-06-19    LWOB202104         1  SDL098372178       SD [views.py:200 - format_order_reports]
+2023-06-20 18:41:32,912 - INFO - logger - Formating platform: tataq_dor with url: order_reports\tata.csv [views.py:64 - format_order_reports]
+2023-06-20 18:41:32,926 - INFO - logger - TatacliQ OR:              order_id  order_date           sku  quantity  platformID platform
+0   230619-026-987896  2023-06-19     LWSB21501         1           0       TQ
+20  230619-026-984007  2023-06-19  LWSB19203024         1           0       TQ [views.py:228 - format_order_reports]
+2023-06-20 18:41:32,931 - INFO - logger - Formating platform: NK_NKFSN_dor with url: order_reports\nykaa.csv [views.py:64 - format_order_reports]
+2023-06-20 18:41:32,940 - INFO - logger - Nykaa and Nykaa Fashion OR:        order_id  order_date           sku  quantity  platformID platform
+0  NYKF13745141  2023-06-20     LWSB21501         1           0    NKFSN
+1  NYKF13746834  2023-06-20  LWOB19201084         1           0    NKFSN
+2  NYKF13753783  2023-06-20  LWOB19201078         1           0    NKFSN
+3  NYKF13747929  2023-06-20  LWOB19201123         1           0    NKFSN [views.py:252 - format_order_reports]
+2023-06-20 18:41:32,945 - INFO - logger - Adding ProductID to each order [views.py:264 - format_order_reports]
+2023-06-20 18:41:32,963 - INFO - logger - ProductID Added [views.py:301 - format_order_reports]
+2023-06-20 18:41:32,966 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:310 - format_order_reports]
+2023-06-20 18:41:32,968 - INFO - logger - Order Report:              order_id  order_date           sku  quantity    platformID platform productid
+0         49339607058  2023-06-19  LWSB19203016         1  SDL321052458       SD    LWSB_4
+16  230619-026-988107  2023-06-19    LWOB202103         1             0       TQ   LWOB_15
+20  230619-026-984007  2023-06-19  LWSB19203024         1             0       TQ    LWSB_6
+21  230619-026-984762  2023-06-19  LWSB19203022         1             0       TQ   LWSB_14
+23  230619-026-996816  2023-06-19     LWSB21501         1             0       TQ   LWSB_11
+24  230619-026-987007  2023-06-19  LWSB16173008         1             0       TQ    LWSB_1
+26  230619-026-988061  2023-06-19     LWSB21502         1             0       TQ   LWSB_12
+27  230619-026-993774  2023-06-19      LWGW2203         1             0       TQ      None
+28  230619-026-996011  2023-06-19    LWOB202103         1             0       TQ   LWOB_15
+0   230619-026-987896  2023-06-19     LWSB21501         1             0       TQ   LWSB_11 [views.py:325 - insert_dor]
+2023-06-20 18:41:32,988 - INFO - logger - Order Report has been recorded [views.py:424 - insert_dor]
+2023-06-20 18:41:33,209 - INFO - logger - Inventory has been Updated [views.py:940 - update_inventory]
+2023-06-20 18:41:33,250 - INFO - logger - Total Inventory column has been updated [views.py:944 - update_inventory]
+2023-06-20 19:11:51,105 - INFO - logger - Formating platform: amazon_lg_dor with url: order_reports\amazon_lg.csv [views.py:64 - format_order_reports]
+2023-06-20 19:11:51,135 - INFO - logger - Amazon LG OR:               order_id  order_date           sku  quantity  platformID platform
+0  403-2480077-1032364  2023-06-19  LGWC20216140         1  B08M3SCS77     A_LG
+1  404-7127163-8352321  2023-06-19  LGWC20216140         1  B08M3SCS77     A_LG [views.py:99 - format_order_reports]
+2023-06-20 19:11:51,141 - INFO - logger - Adding ProductID to each order [views.py:264 - format_order_reports]
+2023-06-20 19:11:51,270 - INFO - logger - ProductID Added [views.py:301 - format_order_reports]
+2023-06-20 19:11:51,272 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:310 - format_order_reports]
+2023-06-20 19:11:51,273 - INFO - logger - Order Report:                 order_id  order_date            sku  quantity  platformID platform productid
+580  407-6709938-3172355  2023-05-19   LGWC20216140         1  B08M3SCS77     A_LG    LWWC_9
+577  406-2972449-4381126  2023-05-20  FLYBP20213016         1  B08NTG4GFM     A_LG   LWBP_12
+579  403-2707731-9385920  2023-05-20   LGWC20216140         1  B08M3SCS77     A_LG    LWWC_9
+578  171-0190017-3530713  2023-05-20   LGWC20216140         1  B08M3SCS77     A_LG    LWWC_9
+576  402-2392034-7491549  2023-05-21   LGWC20216104         1  B08M8T49D1     A_LG   LWWC_15
+574  405-8591023-7212365  2023-05-21   LGWC20216104         1  B08M8T49D1     A_LG   LWWC_15
+573  171-0283835-3575568  2023-05-21   LGHK20201103         1  B083ZZL6FF     A_LG    LWHK_3
+572  404-7029057-4003536  2023-05-21  FLYWC16176113         1  B0C1NZ44W8     A_LG   LWWC_11
+571  403-5959354-5448314  2023-05-21   LGSB19203023         1  B0BYSWK693     A_LG   LWSB_13
+569  402-4343757-1352312  2023-05-21   LGWC20216092         1  B08M9L4757     A_LG   LWWC_17 [views.py:325 - insert_dor]
+2023-06-20 19:11:51,437 - INFO - logger - Order Report has been recorded [views.py:424 - insert_dor]
+2023-06-20 19:11:51,559 - INFO - logger - Inventory has been Updated [views.py:940 - update_inventory]
+2023-06-20 19:11:51,599 - INFO - logger - Total Inventory column has been updated [views.py:944 - update_inventory]
+2023-06-20 19:15:04,493 - INFO - logger - Formating platform: flipkart_dor with url: order_reports\flipkart.csv [views.py:64 - format_order_reports]
+2023-06-20 19:15:04,545 - INFO - logger - Flipkart OR:                order_id  order_date             sku  quantity        platformID platform
+0  OD328348525924725100  2023-06-13     LWHK2020105         1  RKSFNQTZZYHSTDF6        F
+2  OD428345207057601100  2023-06-13  LWSB16173019SP         1  YGGGAH2E989UYKHS        F [views.py:127 - format_order_reports]
+2023-06-20 19:15:04,550 - INFO - logger - Adding ProductID to each order [views.py:264 - format_order_reports]
+2023-06-20 19:15:04,649 - INFO - logger - ProductID Added [views.py:301 - format_order_reports]
+2023-06-20 19:15:04,650 - INFO - logger - Final Order Repor Has been Created and Order Per Platform has been saved [views.py:310 - format_order_reports]
+2023-06-20 19:15:04,651 - INFO - logger - Order Report:                  order_id  order_date             sku  quantity        platformID platform productid
+0    OD328348525924725100  2023-06-13     LWHK2020105         1  RKSFNQTZZYHSTDF6        F    LWHK_5
+121  OD328353178569127100  2023-06-13    LWDB19204062         1  DFBFMZ89PBVHKMJR        F   LWDB_14
+122  OD428346334795865100  2023-06-13      LWDB224098         1  DFBGBFY4VVDQHWXY        F    LWDB_6
+123  OD328345165042292100  2023-06-13    LWWC16176135         1  WHBFNUGYJQYSXDCW        F   LWWC_19
+124  OD428351261759552100  2023-06-13      LWDB224098         1  DFBGBFY4VVDQHWXY        F    LWDB_6
+125  OD428353006534082100  2023-06-13    LWDB19204084         1  DFBFZGJWM6GJ88ZV        F    LWDB_5
+126  OD428348411171506100  2023-06-13    LWBP20213014         1  SLBFWJCUEHWBTEWT        F   LWBP_10
+129  OD428352772042162100  2023-06-13    LWBP20213016         1  SLBFWXWPKBEZQYHU        F   LWBP_12
+130  OD428349056791748100  2023-06-13  LWSB19203026SP         1  YGGGAH5RYHQYHHGX        F   LWSB_10
+120  OD328349322431935100  2023-06-13   FLYSB202102SP         1  YGGGAKY6W32U5EUQ        F   FLYSB_5 [views.py:325 - insert_dor]
+2023-06-20 19:15:04,713 - INFO - logger - Order Report has been recorded [views.py:424 - insert_dor]
+2023-06-20 19:15:04,757 - INFO - logger - Inventory has been Updated [views.py:940 - update_inventory]
+2023-06-20 19:15:04,797 - INFO - logger - Total Inventory column has been updated [views.py:944 - update_inventory]
