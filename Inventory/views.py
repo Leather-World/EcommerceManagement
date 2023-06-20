@@ -1,4 +1,4 @@
-from flask import Flask, json, request, render_template, flash,  redirect, url_for, send_from_directory, send_file, session ,jsonify
+from flask import request, render_template, session ,jsonify, redirect, url_for
 import os
 import pandas as pd
 import sqlite3
@@ -20,37 +20,36 @@ Return_report_db_path = os.path.join(os.getcwd(),'Database', 'Return.db')
 
 def check_user():
     if 'user' not in session:
-        return redirect('login.html')
-    else:
-        return session
+        return 'not_ok'
 
 # Helper function to get a dictionary of ProductID -> SubTitle mappings
 def get_product_subtitles(product_data):
     return {product['ProductID']: product['SubTitle'] for product in product_data}
 
 def InventoryHome():
-
-    print(check_user())
-
-    # ReadLatestInventory()
-
-    rows = show_update_inventory_show()
-    # Render the template with the rows
-
-    if rows is not None:
-        product_data = get_product_subtitles(rows)
-
+    if check_user() == 'not_ok':
+        return render_template('login.html')
+    
     else:
-        product_data = None
+        # ReadLatestInventory()
 
-    m_invt_rows = m_inventory_show()
+        rows = show_update_inventory_show()
+        # Render the template with the rows
 
-    # print(m_invt_rows)
+        if rows is not None:
+            product_data = get_product_subtitles(rows)
 
-    one_week_order_summary_dict = one_week_order_summary()
+        else:
+            product_data = None
+
+        m_invt_rows = m_inventory_show()
+
+        # print(m_invt_rows)
+
+        one_week_order_summary_dict = one_week_order_summary()
 
 
-    return render_template('/inventorySite/inventoryHome.html',one_week_order_summary_dict=one_week_order_summary_dict, rows=rows, product_data=product_data, m_invt_rows=m_invt_rows)
+        return render_template('/inventorySite/inventoryHome.html',one_week_order_summary_dict=one_week_order_summary_dict, rows=rows, product_data=product_data, m_invt_rows=m_invt_rows)
     
 
 def format_order_reports(result):
@@ -81,6 +80,24 @@ def format_order_reports(result):
 
                 logger.info('Amazon OR: %s' , amazon_order_report.head(2))
                 order_report.append(amazon_order_report)
+            
+            if platform == 'amazon_lg_dor' and url[0] != '':
+                amazon_lg_order_report = pd.read_csv(url[0])
+                amazon_lg_order_report = amazon_lg_order_report[['amazon-order-id','purchase-date','sku','quantity','order-status','asin']]
+                amazon_lg_order_report.rename(columns = {'amazon-order-id':'order_id','purchase-date':'order_date','asin':'platformID'}, inplace = True)
+                amazon_lg_order_report = amazon_lg_order_report[~amazon_lg_order_report['order-status'].isin(['Cancelled'])]
+                amazon_lg_order_report.drop(['order-status'], axis=1,  inplace=True)
+                # convert the purchase-date column to a datetime object
+                amazon_lg_order_report['order_date'] = pd.to_datetime(amazon_lg_order_report['order_date'])
+                # extract the date from the datetime object
+                amazon_lg_order_report['order_date'] = amazon_lg_order_report['order_date'].dt.strftime('%Y-%m-%d')
+
+                # amazon_lg_order_report['order_date'] = amazon_lg_order_report['order_date'].dt.date
+                amazon_lg_order_report['platform'] = 'A_LG'
+
+                logger.info('Amazon LG OR: %s' , amazon_lg_order_report.head(2))
+                order_report.append(amazon_lg_order_report)
+
 
             if platform == 'flipkart_dor' and url[0] != '':
                 flipkart_order_report = pd.read_csv(url[0])
@@ -1041,22 +1058,30 @@ def show_update_inventory_show():
         df1 = pd.read_sql_query(query1, inv_conn)
         df2 = pd.read_sql_query(query2, pro_conn)
 
+
         # Merge the DataFrames on the ProductID column
         merged = pd.merge(df1, df2, on='ProductID', how='left')
+
 
         # merged.to_csv('merge_the_df_to_show_on_html.csv', index=False)
 
         # Pivot the table to display inventory by platform
         pivot = pd.pivot_table(merged, index=['ProductID', 'SubTitle', 'Benchmark', 'TInventory'],
-                            columns='Platform', values='Inventory', fill_value=0)
-        
-        # pivot.to_csv('pivot_the_df_to_show_on_html.csv', index=False)
+                            columns='Platform', values='Inventory', fill_value='NA')
+                
+        pivot.to_csv('f_pivot_the_df_to_show_on_html.csv', index=False)
 
-        # Compute the sum of each row and add it as a new column
-        output = pivot.assign(Total=pivot.sum(axis=1))
+
+        pivot = pivot.applymap(lambda x: int(x) if x != 'NA' else x)
 
         # Reset the index to flatten the table
-        output = output.reset_index()
+        output = pivot.reset_index()
+
+        # Remove the first duplicate occurrence of each ProductID
+        # output = output[~output.duplicated(subset=['ProductID'], keep='last')]
+
+        output.to_csv('pivot_the_df_to_show_on_html.csv', index=False)
+
 
         df_days_left = estimate_stock_over()
 
@@ -1065,9 +1090,13 @@ def show_update_inventory_show():
         merged = pd.merge(output, df_days_left, on='ProductID', how='left')
 
         final_df = merged.sort_values(by=['days_until_empty'])
+        
+
+        # final_df.to_csv('final_df.csv', index=False)
 
         # Convert the DataFrame to a list of dictionaries
         rows = final_df.to_dict('records')
+
 
         # Render the template with the rows
         return rows
@@ -1084,6 +1113,7 @@ def UpdateInventory():
     product_id = data['ProductId']
     inventory_updates = {
         'A': data.get('A'),
+        'A_LG': data.get('A_LG'),
         'F': data.get('F'),
         'M': data.get('M'),
         'SD' : data.get('SD'), 
@@ -1111,6 +1141,7 @@ def UpdateInventory():
                     return jsonify({'status': 'Error', 'message': f'No row exists for ProductID: {product_id} and Platform: {platform}. Please adjust your inventory to other platforms'})
                 
                 cur.execute(f"UPDATE inventory_report SET Inventory = {int(qty)}, Benchmark = {int(benchmark)} WHERE ProductID = '{product_id}' AND Platform = '{platform}'")
+
 
         # Set the benchmark same for all platforms of the product_id
         cur.execute(f"UPDATE inventory_report SET Benchmark = {int(benchmark)} WHERE ProductID = '{product_id}'")
@@ -1238,6 +1269,7 @@ def InvtUpdateApprove():
         
         inventory_updates = {
         'A': int(request.form.get('u_Amazon')),
+        'A_LG': int(request.form.get('u_Amazon_lg')),
         'F': int(request.form.get('u_Flipkart')),
         'M': int(request.form.get('u_Myntra')),
         'SD' : int(request.form.get('u_Snapdeal')), 

@@ -6,7 +6,6 @@ import random
 import smtplib
 import datetime
 
-
 DEVELOPMENT_ENV = True
 
 app = Flask(__name__)
@@ -16,10 +15,11 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 @app.route('/', methods=['GET', 'POST'])
 def Home():
-   print(session)
-   if 'user' not in session:
-      return redirect(url_for('login'))
-   return render_template('home.html')
+    if 'user' not in session:
+        print(session)
+        return redirect(url_for('login'))
+    return render_template('home.html')
+
 
 
 app.add_url_rule('/inventory', view_func = inventoryUrl.InventoryHome, methods=['GET', 'POST'])

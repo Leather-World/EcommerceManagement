@@ -26,32 +26,36 @@
     <br>
 
     <div class="chartCard">
-      <div class="chartBox" style="width: 1000px;">
+      <div class="chartBox">
         <h4>Order and Return Trend</h4>
-        <div class="row">
-          <div class="col-md-6">
-            <label for="platform-select-or-lg" class="form-label">Select a platform:</label>
-            <select id="platform-select-or-lg" class="form-select">
-              <option value="A">Amazon</option>
-              <option value="F">Flipkart</option>
-              <option value="M">Myntra</option>
-              <option value="AJ">Ajio</option>
-              <option value="SD">Snapdeal</option>
-              <option value="TQ">TataCliQ</option>
-            </select>
+
+        <div class="form-group">
+          <div class="row">
+            <div class="col-sm-6">
+              <label for="platform-select-or-lg" class="form-label">Select a platform:</label>
+              <select id="platform-select-or-lg" class="form-select">
+                {% for key, value in all_platforms.items() %}
+                <option value="{{ key }}">{{ value }}</option>
+                {% endfor %}
+
+              </select>
+
+              
           </div>
-          <div class="col-md-6">
+          <div class="col-sm-6">
             <label for="time-select-or-lg" class="form-label">Select Interval:</label>
             <select id="time-select-or-lg" onchange="filterChart_OR(this)" class="form-select">
               <option value="">Please Select</option>
               <option value="1">1 Month</option>
               <option value="2">2 Months</option>
               <option value="3">3 Months</option>
-              <option value="4">4 Months</option>
+              <!-- <option value="4">4 Months</option> -->
             </select>
           </div>
         </div>
-        <canvas id="myChart_OR"></canvas>
+    </div>
+          <canvas id="myChart_OR"></canvas>
+        
       </div>
     </div>
 
@@ -88,7 +92,7 @@
 
       // Set initial chart data based on first platform
 
-      myChart_OR.options.scales.x.min = luxon.DateTime.now().plus({ months: -3 }).toISODate();
+      myChart_OR.options.scales.x.min = luxon.DateTime.now().plus({ months: -1 }).toISODate();
 
       var initialPlatform = Object.keys(db_OR_LG_chartData)[0];
       myChart_OR.data.labels = db_OR_LG_chartData[initialPlatform]['labels'];
@@ -130,12 +134,10 @@
                 <div class="col-md-12">
                   <label for="platform-select-r-pa" class="form-label">Select a platform:</label>
                   <select id="platform-select-r-pa" class="form-select">
-                    <option value="A">Amazon</option>
-                    <option value="F">Flipkart</option>
-                    <option value="M">Myntra</option>
-                    <option value="AJ">Ajio</option>
-                    <option value="SD">Snapdeal</option>
-                    <option value="TQ">TataCliQ</option>
+                    {% for key, value in all_platforms.items() %}
+                    <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+
                   </select>
                 </div>
               </div>
@@ -215,12 +217,10 @@
                 <div class="col-md-6">
                   <label for="platform-select-rr-lg" class="form-label">Select a platform:</label>
                   <select id="platform-select-rr-lg" class="form-select">
-                    <option value="A">Amazon</option>
-                    <option value="F">Flipkart</option>
-                    <option value="M">Myntra</option>
-                    <option value="AJ">Ajio</option>
-                    <option value="SD">Snapdeal</option>
-                    <option value="TQ">TataCliQ</option>
+                    {% for key, value in all_platforms.items() %}
+                      <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+
                   </select>
                 </div>
                 <div class="col-md-6">
@@ -230,7 +230,7 @@
                     <option value="1">1 Month</option>
                     <option value="2">2 Months</option>
                     <option value="3">3 Months</option>
-                    <option value="4">4 Months</option>
+                    <!-- <option value="4">4 Months</option> -->
                   </select>
                 </div>
               </div>
@@ -345,12 +345,10 @@
       <select name="table-selector-platform" id="table-selector-platform" class="form-select col-4"
         onchange="filterTable()">
         <option value="all">All</option>
-        <option value="A">Amazon</option>
-        <option value="F">Flipkart</option>
-        <option value="M">Myntra</option>
-        <option value="AJ">Ajio</option>
-        <option value="SD">Snapdeal</option>
-        <option value="TQ">TataCliQ</option>
+        {% for key, value in all_platforms.items() %}
+          <option value="{{ key }}">{{ value }}</option>
+        {% endfor %}
+
       </select>
 
     </div>
@@ -378,7 +376,7 @@
     <table class="table-responsive" id="TOPMEDLOW_table">
       <thead class="sticky-header">
         <tr>
-          <th>Image</th>
+          <!--<th>Image</th>-->
           <th>Product ID</th>
           <th>Subtitle</th>
           <th>Orders (Per Month)</th>
@@ -391,7 +389,7 @@
       <tbody>
         {% for row in top_medium_low_data %}
         <tr>
-          <td><img data-src="{{ row['ImgURL'] }}" alt="{{ row['SubTitle'] }}" class="lazyload"></td>
+          <!--<td><img data-src="{{ row['ImgURL'] }}" alt="{{ row['SubTitle'] }}" class="lazyload"></td>-->
           <td><a href="/product/{{ row.productid }}" target="_blank">{{ row.productid }}</a></td>
           <td>{{ row.SubTitle }}</td>
           <td>{{ row.SumOfQuantity }}</td>
@@ -421,9 +419,9 @@
         }
 
         var row = rows[i];
-        var trendStatus = row.cells[7].innerText;
-        var categoryValue = row.cells[6].innerText;
-        var platformValue = row.cells[5].innerText;
+        var trendStatus = row.cells[6].innerText;
+        var categoryValue = row.cells[5].innerText;
+        var platformValue = row.cells[4].innerText;
 
         if ((status === "all" || trendStatus === status) &&
           (platform === "all" || platformValue === platform) &&
@@ -571,30 +569,23 @@
     margin: 0;
     padding: 0;
     font-family: sans-serif;
-  }
+}
 
-  .chartMenu p {
-    padding: 10px;
-    font-size: 20px;
-  }
-
-  .chartCard {
-    /* width: 80vw;
-      height: calc(80vh - 40px); */
-    background: rgba(252, 252, 252, 0.2);
+.chartCard {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* padding-left: 140px; */
-  }
+}
 
-  .chartBox {
-    width: 600px;
+.chartBox {
+    width: 100%;
+    max-width: 1000px;
     padding: 20px;
     border-radius: 20px;
     border: solid 3px rgba(54, 162, 235, 1);
     background: white;
-  }
+}
+
 
   table {
     border-collapse: collapse;
