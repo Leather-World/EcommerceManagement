@@ -58,62 +58,81 @@
                             <div class="col-4">
                                 <div class="input-group">
                                     <span class="input-group-text">Amazon</span>
-                                    <input type="text" class="form-control" name="amazon_dor" id="amazon_dor">
+                                    <!-- <input type="text" class="form-control" name="amazon_dor" id="amazon_dor"> -->
+                                    <input type="file" class="form-control" id="amazon_dor">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">Amazon LG</span>
+                                    <!-- <input type="text" class="form-control" name="amazon_lg_dor" id="amazon_lg_dor"> -->
+                                    <input type="file" class="form-control" id="amazon_lg_dor">
+
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
                                     <span class="input-group-text">Flipkart</span>
-                                    <input type="text" class="form-control" name="flipkart_dor" id="flipkart_dor">
+                                    <!-- <input type="text" class="form-control" name="flipkart_dor" id="flipkart_dor"> -->
+                                    <input type="file" class="form-control" id="flipkart_dor">
+
                                 </div>
                             </div>
+
+                            <br>
+
+                            <br>
+
                             <div class="col-4">
                                 <div class="input-group">
                                     <span class="input-group-text">Myntra</span>
-                                    <input type="text" class="form-control" name="myntra_dor" id="myntra_dor">
+                                    <!-- <input type="text" class="form-control" name="myntra_dor" id="myntra_dor"> -->
+                                    <input type="file" class="form-control" id="myntra_dor">
+
                                 </div>
                             </div>
-
-                            <br>
-
-                            <br>
-
 
                             <div class="col-4">
                                 <div class="input-group">
                                     <span class="input-group-text">Snapdeal</span>
-                                    <input type="text" class="form-control" name="snapdeal_dor" id="snapdeal_dor">
+                                    <!-- <input type="text" class="form-control" name="snapdeal_dor" id="snapdeal_dor"> -->
+                                    <input type="file" class="form-control" id="snapdeal_dor">
+
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
                                     <span class="input-group-text">Ajio</span>
-                                    <input type="text" class="form-control" name="ajio_dor" id="ajio_dor">
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="input-group">
-                                    <span class="input-group-text">TataQlick</span>
-                                    <input type="text" class="form-control" name="tatq_dor" id="tataq_dor">
+                                    <!-- <input type="text" class="form-control" name="ajio_dor" id="ajio_dor"> -->
+                                    <input type="file" class="form-control" id="ajio_dor">
+
                                 </div>
                             </div>
 
-                             <br>
+                            <br>
 
                             <br>
 
                             <div class="col-4">
                                 <div class="input-group">
+                                    <span class="input-group-text">TataQlick</span>
+                                    <!-- <input type="text" class="form-control" name="tatq_dor" id="tataq_dor"> -->
+                                    <input type="file" class="form-control" id="tataq_dor">
+
+                                </div>
+                            </div>
+
+                            
+
+                            <div class="col-4">
+                                <div class="input-group">
                                     <span class="input-group-text">Nykaa/NykaaFSN</span>
-                                    <input type="text" class="form-control" name="NK_NKFSN_dor" id="NK_NKFSN_dor">
+                                    <!-- <input type="text" class="form-control" name="NK_NKFSN_dor" id="NK_NKFSN_dor"> -->
+                                    <input type="file" class="form-control" id="NK_NKFSN_dor">
+
                                 </div>
                             </div>
                         </div>
-
-            
-                            
-
-
 
                     </div>
 
@@ -125,7 +144,46 @@
 
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 
-            <script type="text/javascript">
+            <script>
+                $(document).on('submit', '#dor_form', function (e) {
+                    e.preventDefault();
+                    
+                    var formData = new FormData();
+                    formData.append('amazon_dor', $("#amazon_dor")[0].files[0]);
+                    formData.append('amazon_lg_dor', $("#amazon_lg_dor")[0].files[0]);
+                    formData.append('flipkart_dor', $("#flipkart_dor")[0].files[0]);
+                    formData.append('myntra_dor', $("#myntra_dor")[0].files[0]);
+                    formData.append('snapdeal_dor', $("#snapdeal_dor")[0].files[0]);
+                    formData.append('ajio_dor', $("#ajio_dor")[0].files[0]);
+                    formData.append('tataq_dor', $("#tataq_dor")[0].files[0]);
+                    formData.append('NK_NKFSN_dor', $("#NK_NKFSN_dor")[0].files[0]);
+
+
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: '/inventory/DailyOrderReport',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                alert('Success: ' + response.message);
+                                $('#dor_form')[0].reset();
+                            } else {
+                                alert('Error: ' + response.message);
+                                $('#dor_form')[0].reset();
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            alert('Error: ' + error);
+                        }
+                    });
+                });
+            </script>
+
+            <!-- <script type="text/javascript">
                 $(document).on('submit', '#dor_form', function (e) {
                     console.log('hello');
                     e.preventDefault();
@@ -134,6 +192,7 @@
                         url: '/inventory/DailyOrderReport',
                         data: {
                             amazon_dor: $("#amazon_dor").val(),
+                            amazon_lg_dor: $("#amazon_lg_dor").val(),
                             flipkart_dor: $("#flipkart_dor").val(),
                             myntra_dor: $("#myntra_dor").val(),
                             snapdeal_dor: $("#snapdeal_dor").val(),
@@ -158,7 +217,7 @@
                         }
                     })
                 });
-            </script>
+            </script> -->
 
     <hr>
     
