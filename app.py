@@ -30,6 +30,7 @@ app.add_url_rule('/inventory/UpdateInventory', view_func = inventoryUrl.UpdateIn
 app.add_url_rule('/inventory/AddInventoryM', view_func = inventoryUrl.AddInventoryM, methods=['GET', 'POST'])
 app.add_url_rule('/inventory/InvtUpdateApprove', view_func = inventoryUrl.InvtUpdateApprove, methods=['GET', 'POST'])
 app.add_url_rule('/inventory/DownloadDatabase', view_func = inventoryUrl.DownloadDatabase, methods=['POST'])
+app.add_url_rule('/inventory/Downloadlogs', view_func = inventoryUrl.Downloadlogs, methods=['POST'])
 
 
 app.add_url_rule('/product', view_func = productsUrl.ProductHome, methods=['GET', 'POST'])
