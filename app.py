@@ -93,7 +93,7 @@ def send_otp_email(otp):
    # SET THE INFO ABOUT THE SAID EMAIL
    # =============================================================================
    sent_from = gmail_user
-   sent_to = ['shaikhafy39@gmail.com']
+   sent_to = ['leatherworld4@gmail.com']
    sent_subject = 'OTP for Ecommerce Management Site'
    sent_body = f"{otp} - OTP for Ecommerce Management"
 
