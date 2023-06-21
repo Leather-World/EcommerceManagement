@@ -67,7 +67,7 @@ def login():
                 if otp == session['otp']:
                     session['user'] = True
                   #   session.permanent = True
-                    app.permanent_session_lifetime = datetime.timedelta(minutes=30)
+                    app.permanent_session_lifetime = datetime.timedelta(minutes=120)
                     session.modified = True
                     session.pop('otp', None)
                     session.pop('sent_otp', None)
