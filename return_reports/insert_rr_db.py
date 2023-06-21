@@ -5,7 +5,7 @@ import sqlite3
 
 def insert_rr():
     # read the return report CSV file
-    return_report = pd.read_csv("ne/final_return_report.csv")
+    return_report = pd.read_csv("final_return_report.csv")
 
     # define the name of the databases and tables
     return_report_db = "../Database/Return.db"
